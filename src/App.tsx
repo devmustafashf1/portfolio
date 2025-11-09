@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { TypeAnimation } from "react-type-animation";
+import heroImg from '../public/gm.jpg';
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -151,7 +152,7 @@ function App() {
               <div className="relative w-72 h-72 md:w-96 md:h-96">
                 <div className="absolute inset-1 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-full flex items-center justify-center overflow-hidden profile-circle">
                   <img
-                    src="/gm.jpg"
+                    src={heroImg}
                     alt="Mustafa Shf"
                     className="w-full h-full object-cover"
                   />
