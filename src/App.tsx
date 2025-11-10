@@ -133,8 +133,8 @@ function App() {
               </div>
             </div>
 
-            {/* Right side (Image section, hidden on mobile) */}
-            <div className="hidden md:flex justify-center md:justify-end">
+            {/* Right side (Image section) */}
+            <div className="flex justify-center md:justify-end mt-8 md:mt-0">
               <style>{`
                 @keyframes float {
                   0%, 100% { transform: translateY(0px); }
@@ -149,7 +149,7 @@ function App() {
                 }
               `}</style>
 
-              <div className="relative w-72 h-72 md:w-96 md:h-96">
+              <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-96 md:h-96">
                 <div className="absolute inset-1 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-full flex items-center justify-center overflow-hidden profile-circle">
                   <img
                     src={heroImg}
