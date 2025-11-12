@@ -27,7 +27,7 @@ export default function About() {
         viewport={{ once: true }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <div className="text-3xl md:text-4xl font-bold flex items-center gap-3 md:mt-16">
+        <div className="text-3xl md:text-4xl font-bold flex items-center gap-3 md:mt-16 mt-10">
          <span className="text-slate-600 text-2xl ">//</span>
          About Me
         </div>

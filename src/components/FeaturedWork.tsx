@@ -36,8 +36,10 @@ export default function FeaturedWork() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <span className="text-slate-600 text-2xl">//</span>
-        Featured Work
+        <div className="text-3xl md:text-4xl font-bold mt-10 md:mt-16 flex items-center gap-3">
+          <span className="text-slate-600 text-2xl">//</span>
+            Featured Work
+        </div>
       </motion.h2>
       <div className="space-y-5 md:space-y-6">
         {projects.map((project, idx) => (
