@@ -4,16 +4,23 @@ import { User, Lock, Eye, EyeOff, ArrowLeft, LogIn } from "lucide-react";
 
 interface LoginProps {
   onBack?: () => void;
+  onLoginSuccess: () => void;
 }
 
-const Login = ({ onBack }: LoginProps) => {
+const Login = ({ onBack, onLoginSuccess }: LoginProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { username, password });
+    
+    // TODO: Replace with actual authentication
+    if (username === 'admin' && password === 'admin') {
+      onLoginSuccess();
+    } else {
+      alert('Invalid credentials. Use admin/admin for demo.');
+    }
   };
 
   return (

@@ -6,12 +6,26 @@ import FeaturedWork from './components/FeaturedWork';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Login from './components/login';
+import AdminPanel from './components/AdminPanel';
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  if (showAdmin) {
+    return <AdminPanel onBack={() => setShowAdmin(false)} />;
+  }
 
   if (showLogin) {
-    return <Login onBack={() => setShowLogin(false)} />;
+    return (
+      <Login 
+        onBack={() => setShowLogin(false)} 
+        onLoginSuccess={() => {
+          setShowLogin(false);
+          setShowAdmin(true);
+        }}
+      />
+    );
   }
 
   return (
