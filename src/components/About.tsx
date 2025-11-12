@@ -21,14 +21,16 @@ export default function About() {
     >
       {/* Heading */}
       <motion.h2
-        className="text-3xl md:text-4xl font-bold mb-8 md:mb-12 flex items-center gap-3"
+        className="text-3xl md:text-4xl font-bold mb-8 md:mb-12 flex items-center gap-3 "
         initial={{ opacity: 0, x: -30 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <span className="text-slate-600 text-2xl">//</span>
-        About Me
+        <div className="text-3xl md:text-4xl font-bold flex items-center gap-3 md:mt-16">
+         <span className="text-slate-600 text-2xl ">//</span>
+         About Me
+        </div>
       </motion.h2>
 
       {/* Content Grid */}

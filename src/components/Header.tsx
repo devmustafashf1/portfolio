@@ -1,9 +1,20 @@
 import { useState } from "react";
 import { Code2, Menu, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { LogIn } from "lucide-react";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const smoothScroll = (targetId: string) => {
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
 
   return (
     <motion.nav 
@@ -19,17 +30,22 @@ export default function Header() {
         </span>
       </div>
 
-      {/* Desktop Links */}
-      <div className="hidden md:flex gap-8">
-        <a href="#about" className="hover:text-cyan-400 transition-colors">
+      {/* Desktop Links & Login */}
+      <div className="hidden md:flex items-center gap-8">
+        <button onClick={() => smoothScroll('about')} className="hover:text-cyan-400 transition-colors">
           About
-        </a>
-        <a href="#work" className="hover:text-cyan-400 transition-colors">
+        </button>
+        <button onClick={() => smoothScroll('work')} className="hover:text-cyan-400 transition-colors">
           Work
-        </a>
-        <a href="#contact" className="hover:text-cyan-400 transition-colors">
+        </button>
+        <button onClick={() => smoothScroll('contact')} className="hover:text-cyan-400 transition-colors">
           Contact
-        </a>
+        </button>
+        <button className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all flex items-center justify-center gap-2">
+          <LogIn className="w-5 h-5 text-white" />
+           login
+        </button>
+
       </div>
 
       {/* Mobile Menu Button */}
@@ -43,27 +59,31 @@ export default function Header() {
       {/* Mobile Dropdown */}
       {menuOpen && (
         <div className="absolute top-14 right-0 bg-slate-900 border border-slate-800 rounded-2xl shadow-lg flex flex-col items-center gap-4 p-6 md:hidden w-48 z-50">
-          <a
-            href="#about"
-            onClick={() => setMenuOpen(false)}
+          <button
+            onClick={() => { smoothScroll('about'); setMenuOpen(false); }}
             className="hover:text-cyan-400 transition-colors"
           >
             About
-          </a>
-          <a
-            href="#work"
-            onClick={() => setMenuOpen(false)}
+          </button>
+          <button
+            onClick={() => { smoothScroll('work'); setMenuOpen(false); }}
             className="hover:text-cyan-400 transition-colors"
           >
             Work
-          </a>
-          <a
-            href="#contact"
-            onClick={() => setMenuOpen(false)}
+          </button>
+          <button
+            onClick={() => { smoothScroll('contact'); setMenuOpen(false); }}
             className="hover:text-cyan-400 transition-colors"
           >
             Contact
-          </a>
+          </button>
+          <button
+            onClick={() => setMenuOpen(false)}
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all mt-2 flex items-center justify-center"
+          >
+           <LogIn className="w-5 h-5 text-white" />
+          </button>
+
         </div>
       )}
     </motion.nav>
