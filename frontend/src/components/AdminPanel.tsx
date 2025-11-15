@@ -21,6 +21,7 @@ interface BlogPost {
   readTime: number
   author: string
   isPinned: boolean
+  views: number
 }
 
 interface AdminPanelProps {
@@ -87,7 +88,8 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
       createdAt: new Date().toISOString().split('T')[0],
       readTime: blogFormData.readTime,
       author: blogFormData.author,
-      isPinned: blogFormData.isPinned
+      isPinned: blogFormData.isPinned,
+      views: 0
     }
 
     // TODO: Replace with actual API call
@@ -467,7 +469,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
                         )}
                       </div>
                       <p className="text-slate-400 mb-2 text-sm sm:text-base break-words">{blog.excerpt}</p>
-                      <p className="text-slate-500 text-xs sm:text-sm mb-3">By {blog.author} • {blog.createdAt} • {blog.readTime} min read</p>
+                      <p className="text-slate-500 text-xs sm:text-sm mb-3">By {blog.author} • {blog.createdAt} • {blog.readTime} min read • {blog.views} views</p>
                       <div className="flex gap-2 flex-wrap">
                         {blog.tags.map((tag) => (
                           <span

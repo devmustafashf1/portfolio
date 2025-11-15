@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Clock, Pin, User } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Pin, User, Eye } from 'lucide-react';
 
 interface BlogPost {
   id: string;
@@ -12,6 +12,7 @@ interface BlogPost {
   readTime: number;
   author: string;
   isPinned: boolean;
+  views: number;
 }
 
 interface BlogProps {
@@ -24,6 +25,13 @@ interface BlogDetailProps {
 }
 
 const BlogDetail = ({ blog, onBack }: BlogDetailProps) => {
+  useEffect(() => {
+    // Increment view count when blog is opened
+    const currentViews = localStorage.getItem(`blog_views_${blog.id}`);
+    const newViews = currentViews ? parseInt(currentViews) + 1 : 1;
+    localStorage.setItem(`blog_views_${blog.id}`, newViews.toString());
+  }, [blog.id]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
@@ -60,6 +68,10 @@ const BlogDetail = ({ blog, onBack }: BlogDetailProps) => {
               <Clock className="w-4 h-4" />
               {blog.readTime} min read
             </div>
+            <div className="flex items-center gap-1">
+              <Eye className="w-4 h-4" />
+              {blog.views} views
+            </div>
           </div>
           
           <div className="flex gap-2 flex-wrap mb-8">
@@ -86,7 +98,18 @@ const BlogDetail = ({ blog, onBack }: BlogDetailProps) => {
 
 const Blog = ({ onBack }: BlogProps) => {
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
-  
+  const [blogViews, setBlogViews] = useState<{[key: string]: number}>({});
+
+  // Load view counts from localStorage
+  useEffect(() => {
+    const views: {[key: string]: number} = {};
+    ['1', '2'].forEach(id => {
+      const viewCount = localStorage.getItem(`blog_views_${id}`);
+      views[id] = viewCount ? parseInt(viewCount) : 0;
+    });
+    setBlogViews(views);
+  }, []);
+
   // Mock data - replace with actual data from your backend
   const blogPosts: BlogPost[] = [
     {
@@ -98,7 +121,8 @@ const Blog = ({ onBack }: BlogProps) => {
       createdAt: '2024-01-15',
       readTime: 5,
       author: 'GM',
-      isPinned: true
+      isPinned: true,
+      views: blogViews['1'] || 0
     },
     {
       id: '2',
@@ -109,7 +133,8 @@ const Blog = ({ onBack }: BlogProps) => {
       createdAt: '2024-01-10',
       readTime: 8,
       author: 'GM',
-      isPinned: false
+      isPinned: false,
+      views: blogViews['2'] || 0
     }
   ];
   
@@ -185,6 +210,10 @@ const Blog = ({ onBack }: BlogProps) => {
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {post.readTime} min read
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      {post.views} views
                     </div>
                   </div>
                 </div>
