@@ -5,9 +5,10 @@ import { LogIn } from "lucide-react";
 
 interface HeaderProps {
   onLoginClick: () => void;
+  onBlogClick: () => void;
 }
 
-export default function Header({ onLoginClick }: HeaderProps) {
+export default function Header({ onLoginClick, onBlogClick }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const smoothScroll = (targetId: string) => {
@@ -41,6 +42,9 @@ export default function Header({ onLoginClick }: HeaderProps) {
         </button>
         <button onClick={() => smoothScroll('work')} className="hover:text-cyan-400 transition-colors">
           Work
+        </button>
+        <button onClick={onBlogClick} className="hover:text-cyan-400 transition-colors">
+          Blog
         </button>
         <button onClick={() => smoothScroll('contact')} className="hover:text-cyan-400 transition-colors">
           Contact
@@ -77,6 +81,12 @@ export default function Header({ onLoginClick }: HeaderProps) {
             className="hover:text-cyan-400 transition-colors"
           >
             Work
+          </button>
+          <button
+            onClick={() => { onBlogClick(); setMenuOpen(false); }}
+            className="hover:text-cyan-400 transition-colors"
+          >
+            Blog
           </button>
           <button
             onClick={() => { smoothScroll('contact'); setMenuOpen(false); }}
