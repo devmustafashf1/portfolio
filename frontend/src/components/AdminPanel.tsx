@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, X, ArrowLeft, Save } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 interface Work {
   id: string
@@ -24,11 +25,8 @@ interface BlogPost {
   views: number
 }
 
-interface AdminPanelProps {
-  onBack: () => void
-}
-
-const AdminPanel = ({ onBack }: AdminPanelProps) => {
+const AdminPanel = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'works' | 'blogs'>('works')
   const [works, setWorks] = useState<Work[]>([])
   const [blogs, setBlogs] = useState<BlogPost[]>([])
@@ -112,7 +110,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <button
-            onClick={onBack}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />

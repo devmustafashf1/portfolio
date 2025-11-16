@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Clock, Pin, User, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface BlogPost {
   id: string;
@@ -13,10 +14,6 @@ interface BlogPost {
   author: string;
   isPinned: boolean;
   views: number;
-}
-
-interface BlogProps {
-  onBack: () => void;
 }
 
 interface BlogDetailProps {
@@ -96,7 +93,8 @@ const BlogDetail = ({ blog, onBack }: BlogDetailProps) => {
   );
 };
 
-const Blog = ({ onBack }: BlogProps) => {
+const Blog = () => {
+  const navigate = useNavigate();
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
   const [blogViews, setBlogViews] = useState<{[key: string]: number}>({});
 
@@ -155,7 +153,7 @@ const Blog = ({ onBack }: BlogProps) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <button
-            onClick={onBack}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
