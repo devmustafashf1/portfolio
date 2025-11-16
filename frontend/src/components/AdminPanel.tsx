@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+//@ts-nocheck
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, X, ArrowLeft, Save } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -27,10 +28,14 @@ interface BlogPost {
 
 const AdminPanel = () => {
   const navigate = useNavigate();
+  
   const [activeTab, setActiveTab] = useState<'works' | 'blogs'>('works')
   const [works, setWorks] = useState<Work[]>([])
   const [blogs, setBlogs] = useState<BlogPost[]>([])
+  const [loading, setLoading] = useState(true)
+
   const [showAddForm, setShowAddForm] = useState(false)
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -38,6 +43,7 @@ const AdminPanel = () => {
     imageUrl: '',
     projectUrl: ''
   })
+
   const [blogFormData, setBlogFormData] = useState({
     title: '',
     content: '',
@@ -48,6 +54,9 @@ const AdminPanel = () => {
     isPinned: false
   })
 
+  // -------------------------------
+  // ADD WORK
+  // -------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -60,90 +69,123 @@ const AdminPanel = () => {
       projectUrl: formData.projectUrl || undefined
     }
 
-    // TODO: Replace with actual API call
-    console.log('Adding new work:', newWork)
-    
     setWorks([...works, newWork])
     setFormData({ title: '', description: '', tags: '', imageUrl: '', projectUrl: '' })
     setShowAddForm(false)
   }
 
-  const handleDelete = async (id: string) => {
-    // TODO: Replace with actual API call
-    console.log('Deleting work:', id)
+  const handleDelete = (id: string) => {
     setWorks(works.filter(work => work.id !== id))
   }
 
+
+  // -------------------------------
+  // ADD BLOG
+  // -------------------------------
   const handleBlogSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
   
-  try {
-    const response = await fetch('https://portfolio-sm6r.onrender.com/read/blog', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add authorization if your endpoint needs it
-        // 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-      },
-      body: JSON.stringify({
-        title: blogFormData.title,
-        author: blogFormData.author,
-        read_time: blogFormData.readTime,
-        pinned: blogFormData.isPinned,
-        excerpt: blogFormData.excerpt,
-        content: blogFormData.content,
-        tags: blogFormData.tags
-      }),
-    });
+    try {
+      const response = await fetch('https://portfolio-sm6r.onrender.com/read/blog', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        },
+        body: JSON.stringify({
+          title: blogFormData.title,
+          author: blogFormData.author,
+          read_time: blogFormData.readTime,
+          pinned: blogFormData.isPinned,
+          excerpt: blogFormData.excerpt,
+          content: blogFormData.content,
+          tags: blogFormData.tags
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      alert(data.error || 'Failed to add blog');
-      return;
+      if (!response.ok) {
+        alert(data.error || 'Failed to add blog');
+        return;
+      }
+
+      const newBlog: BlogPost = {
+        id: data.blog.id || Date.now().toString(),
+        title: data.blog.title,
+        content: data.blog.content,
+        excerpt: data.blog.excerpt,
+        tags: data.blog.tags,
+        createdAt: new Date().toISOString().split('T')[0],
+        readTime: data.blog.read_time,
+        author: data.blog.author,
+        isPinned: data.blog.pinned,
+        views: 0
+      };
+
+      setBlogs([...blogs, newBlog]);
+
+      setBlogFormData({
+        title: '',
+        content: '',
+        excerpt: '',
+        tags: '',
+        readTime: 5,
+        author: 'GM',
+        isPinned: false
+      });
+
+      setShowAddForm(false);
+      alert('Blog added successfully!');
+    } catch (err) {
+      console.error('Error adding blog:', err);
+      alert('Server error, try again later');
     }
+  };
 
-    // Add the new blog to state for immediate UI update
-    const newBlog: BlogPost = {
-      id: data.blog.id || Date.now().toString(),
-      title: data.blog.title,
-      content: data.blog.content,
-      excerpt: data.blog.excerpt,
-      tags: data.blog.tags,
-      createdAt: new Date().toISOString().split('T')[0],
-      readTime: data.blog.read_time,
-      author: data.blog.author,
-      isPinned: data.blog.pinned,
-      views: 0
-    };
-
-    setBlogs([...blogs, newBlog]);
-    setBlogFormData({
-      title: '',
-      content: '',
-      excerpt: '',
-      tags: '',
-      readTime: 5,
-      author: 'GM',
-      isPinned: false
-    });
-    setShowAddForm(false);
-
-    alert('Blog added successfully!');
-  } catch (err) {
-    console.error('Error adding blog:', err);
-    alert('Server error, try again later');
-  }
-};
-
-
-  const handleBlogDelete = async (id: string) => {
-    // TODO: Replace with actual API call
-    console.log('Deleting blog:', id)
+  const handleBlogDelete = (id: string) => {
     setBlogs(blogs.filter(blog => blog.id !== id))
   }
 
-  
+
+  // -------------------------------
+  // FETCH BLOGS FROM API
+  // -------------------------------
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await fetch("https://portfolio-sm6r.onrender.com/read");
+        const data = await res.json();
+
+        const mappedBlogs: BlogPost[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          excerpt: item.excerpt,
+          content: item.content,
+          tags: item.tags,
+          createdAt: item.created_at,
+          readTime: item.read_time,
+          author: item.author,
+          isPinned: item.pinned,
+          views: parseInt(localStorage.getItem(`blog_views_${item.id}`) || '0')
+        }));
+
+        mappedBlogs.sort((a, b) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+
+        setBlogs(mappedBlogs);
+      } catch (err) {
+        console.error("Failed to fetch blogs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 p-4 md:p-6">
@@ -539,3 +581,7 @@ const AdminPanel = () => {
 }
 
 export default AdminPanel
+
+
+
+

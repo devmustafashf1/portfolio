@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import BlogPage from './pages/BlogPage';
 import LoginPage from './pages/LoginPage';
 import AdminPage from './pages/AdminPage';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function ScrollHandler() {
   const location = useLocation();
@@ -46,7 +47,16 @@ function App() {
         } />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+         <Route
+  path="/admin"
+  element={
+    <ProtectedRoute>
+      <AdminPage />
+    </ProtectedRoute>
+  }
+/>
+
+        
         <Route path="*" element={
           <Layout>
             <HomePage />
