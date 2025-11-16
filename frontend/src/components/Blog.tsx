@@ -23,7 +23,6 @@ interface BlogDetailProps {
 
 const BlogDetail = ({ blog, onBack }: BlogDetailProps) => {
   useEffect(() => {
-    // Increment view count when blog is opened
     const currentViews = localStorage.getItem(`blog_views_${blog.id}`);
     const newViews = currentViews ? parseInt(currentViews) + 1 : 1;
     localStorage.setItem(`blog_views_${blog.id}`, newViews.toString());
@@ -96,53 +95,48 @@ const BlogDetail = ({ blog, onBack }: BlogDetailProps) => {
 const Blog = () => {
   const navigate = useNavigate();
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
-  const [blogViews, setBlogViews] = useState<{[key: string]: number}>({});
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load view counts from localStorage
+  // Fetch blogs from API
   useEffect(() => {
-    const views: {[key: string]: number} = {};
-    ['1', '2'].forEach(id => {
-      const viewCount = localStorage.getItem(`blog_views_${id}`);
-      views[id] = viewCount ? parseInt(viewCount) : 0;
-    });
-    setBlogViews(views);
+    const fetchBlogs = async () => {
+      try {
+        const res = await fetch('https://portfolio-sm6r.onrender.com/read');
+        const data = await res.json();
+
+        // Map API response to BlogPost type
+        const mappedBlogs: BlogPost[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          excerpt: item.excerpt,
+          content: item.content,
+          tags: item.tags,
+          createdAt: item.created_at,
+          readTime: item.read_time,
+          author: item.author,
+          isPinned: item.pinned,
+          views: parseInt(localStorage.getItem(`blog_views_${item.id}`) || '0')
+        }));
+
+        // Sort: pinned first, then newest first
+        mappedBlogs.sort((a, b) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+
+        setBlogs(mappedBlogs);
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch blogs', err);
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
   }, []);
 
-  // Mock data - replace with actual data from your backend
-  const blogPosts: BlogPost[] = [
-    {
-      id: '1',
-      title: 'Getting Started with React and TypeScript',
-      excerpt: 'Learn how to set up a modern React project with TypeScript for better development experience.',
-      content: 'React and TypeScript make a powerful combination for building modern web applications. In this comprehensive guide, we\'ll walk through setting up a new React project with TypeScript from scratch.\n\nFirst, let\'s create a new React app with TypeScript template:\n\n```bash\nnpx create-react-app my-app --template typescript\n```\n\nThis command creates a new React application with TypeScript configuration already set up. The TypeScript compiler will help catch errors at compile time, making your code more robust and maintainable.\n\nNext, we\'ll explore the key benefits of using TypeScript with React:\n\n1. **Type Safety**: Catch errors before runtime\n2. **Better IDE Support**: Enhanced autocomplete and refactoring\n3. **Improved Code Documentation**: Types serve as documentation\n4. **Easier Refactoring**: Confident code changes with type checking\n\nLet\'s look at a simple component example:\n\n```tsx\ninterface Props {\n  name: string;\n  age: number;\n}\n\nconst UserCard: React.FC<Props> = ({ name, age }) => {\n  return (\n    <div>\n      <h2>{name}</h2>\n      <p>Age: {age}</p>\n    </div>\n  );\n};\n```\n\nThis approach ensures that your components receive the correct props and helps prevent runtime errors.',
-      tags: ['React', 'TypeScript', 'Web Development'],
-      createdAt: '2024-01-15',
-      readTime: 5,
-      author: 'GM',
-      isPinned: true,
-      views: blogViews['1'] || 0
-    },
-    {
-      id: '2',
-      title: 'Building Responsive UIs with Tailwind CSS',
-      excerpt: 'Discover the power of utility-first CSS framework for creating beautiful responsive designs.',
-      content: 'Tailwind CSS revolutionizes the way we write CSS by providing utility classes that can be composed to build any design directly in your markup.\n\nUnlike traditional CSS frameworks that provide pre-designed components, Tailwind gives you low-level utility classes that let you build completely custom designs without ever leaving your HTML.\n\n## Getting Started\n\nInstall Tailwind CSS in your project:\n\n```bash\nnpm install -D tailwindcss postcss autoprefixer\nnpx tailwindcss init -p\n```\n\n## Key Benefits\n\n1. **Rapid Development**: Build faster with utility classes\n2. **Consistent Design**: Predefined spacing and color scales\n3. **Responsive Design**: Mobile-first responsive modifiers\n4. **Small Bundle Size**: Only the CSS you use gets included\n\n## Example Usage\n\n```html\n<div class="bg-white shadow-lg rounded-lg p-6 max-w-sm mx-auto">\n  <img class="w-full h-48 object-cover rounded-t-lg" src="image.jpg" alt="Card">\n  <div class="pt-4">\n    <h2 class="text-xl font-bold text-gray-800">Card Title</h2>\n    <p class="text-gray-600 mt-2">Card description goes here.</p>\n  </div>\n</div>\n```\n\nThis approach leads to faster development and more maintainable code.',
-      tags: ['CSS', 'Tailwind', 'UI/UX'],
-      createdAt: '2024-01-10',
-      readTime: 8,
-      author: 'GM',
-      isPinned: false,
-      views: blogViews['2'] || 0
-    }
-  ];
-  
-  // Sort blogs: pinned first, then by date
-  const sortedBlogs = [...blogPosts].sort((a, b) => {
-    if (a.isPinned && !b.isPinned) return -1;
-    if (!a.isPinned && b.isPinned) return 1;
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
-  
   if (selectedBlog) {
     return <BlogDetail blog={selectedBlog} onBack={() => setSelectedBlog(null)} />;
   }
@@ -150,7 +144,6 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-        {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <button
             onClick={() => navigate('/')}
@@ -167,14 +160,13 @@ const Blog = () => {
           <div></div>
         </div>
 
-        {/* Blog Posts */}
-        <div className="space-y-8">
-          {blogPosts.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-slate-400 text-lg">No blog posts yet. Check back soon!</p>
-            </div>
-          ) : (
-            sortedBlogs.map((post, index) => (
+        {loading ? (
+          <div className="text-center py-16 text-slate-400">Loading blogs...</div>
+        ) : blogs.length === 0 ? (
+          <div className="text-center py-16 text-slate-400">No blog posts yet. Check back soon!</div>
+        ) : (
+          <div className="space-y-8">
+            {blogs.map((post, index) => (
               <motion.article
                 key={post.id}
                 onClick={() => setSelectedBlog(post)}
@@ -231,9 +223,9 @@ const Blog = () => {
                   ))}
                 </div>
               </motion.article>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

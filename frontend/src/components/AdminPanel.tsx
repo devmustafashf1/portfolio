@@ -75,34 +75,75 @@ const AdminPanel = () => {
   }
 
   const handleBlogSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    const newBlog: BlogPost = {
-      id: Date.now().toString(),
-      title: blogFormData.title,
-      content: blogFormData.content,
-      excerpt: blogFormData.excerpt,
-      tags: blogFormData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-      createdAt: new Date().toISOString().split('T')[0],
-      readTime: blogFormData.readTime,
-      author: blogFormData.author,
-      isPinned: blogFormData.isPinned,
-      views: 0
+  e.preventDefault();
+  
+  try {
+    const response = await fetch('https://portfolio-sm6r.onrender.com/read/blog', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add authorization if your endpoint needs it
+        // 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+      },
+      body: JSON.stringify({
+        title: blogFormData.title,
+        author: blogFormData.author,
+        read_time: blogFormData.readTime,
+        pinned: blogFormData.isPinned,
+        excerpt: blogFormData.excerpt,
+        content: blogFormData.content,
+        tags: blogFormData.tags
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || 'Failed to add blog');
+      return;
     }
 
-    // TODO: Replace with actual API call
-    console.log('Adding new blog:', newBlog)
-    
-    setBlogs([...blogs, newBlog])
-    setBlogFormData({ title: '', content: '', excerpt: '', tags: '', readTime: 5, author: 'GM', isPinned: false })
-    setShowAddForm(false)
+    // Add the new blog to state for immediate UI update
+    const newBlog: BlogPost = {
+      id: data.blog.id || Date.now().toString(),
+      title: data.blog.title,
+      content: data.blog.content,
+      excerpt: data.blog.excerpt,
+      tags: data.blog.tags,
+      createdAt: new Date().toISOString().split('T')[0],
+      readTime: data.blog.read_time,
+      author: data.blog.author,
+      isPinned: data.blog.pinned,
+      views: 0
+    };
+
+    setBlogs([...blogs, newBlog]);
+    setBlogFormData({
+      title: '',
+      content: '',
+      excerpt: '',
+      tags: '',
+      readTime: 5,
+      author: 'GM',
+      isPinned: false
+    });
+    setShowAddForm(false);
+
+    alert('Blog added successfully!');
+  } catch (err) {
+    console.error('Error adding blog:', err);
+    alert('Server error, try again later');
   }
+};
+
 
   const handleBlogDelete = async (id: string) => {
     // TODO: Replace with actual API call
     console.log('Deleting blog:', id)
     setBlogs(blogs.filter(blog => blog.id !== id))
   }
+
+  
 
   return (
     <div className="min-h-screen bg-slate-950 p-4 md:p-6">
@@ -383,6 +424,7 @@ const AdminPanel = () => {
                 </button>
                 <button
                   type="submit"
+                 
                   className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 sm:px-6 py-2 rounded-lg font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all flex items-center justify-center gap-2 order-1 sm:order-2"
                 >
                   <Save className="w-4 h-4" />
