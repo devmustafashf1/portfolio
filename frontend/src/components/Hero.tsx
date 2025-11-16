@@ -2,7 +2,7 @@
 import { Sparkles, ArrowRight } from "lucide-react";
 import { Typewriter } from "react-simple-typewriter";
 import { motion, Variants } from "framer-motion";
-import heroImg from "../../public/gm.jpg";
+import heroImg from "../../public/gm-blur.jpg";
 
 // ✅ Define variants properly using the Variants type
 const container: Variants = {
