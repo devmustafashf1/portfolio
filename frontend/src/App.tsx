@@ -46,6 +46,7 @@ function App() {
           </Layout>
         } />
         <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:id" element={<BlogPage />} />
         <Route path="/login" element={<LoginPage />} />
          <Route
   path="/admin"
