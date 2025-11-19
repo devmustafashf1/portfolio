@@ -4,7 +4,7 @@ import { verifyToken } from '../middleware/verifyToken.js'
 
 const router = express.Router()
 
-router.post('/blog', createBlog)
+router.post('/blog',verifyToken, createBlog)
 router.get("/pinned", getPinnedBlogs);     
 router.get("/:id", getBlogById);   
 router.get("/", getAllBlogs);   

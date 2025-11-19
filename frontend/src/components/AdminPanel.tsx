@@ -59,19 +59,54 @@ const AdminPanel = () => {
   // -------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    const newWork: Work = {
-      id: Date.now().toString(),
-      title: formData.title,
-      description: formData.description,
-      tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-      imageUrl: formData.imageUrl || undefined,
-      projectUrl: formData.projectUrl || undefined
-    }
+    try {
+      const token = localStorage.getItem('adminToken')
+      if (!token) {
+        alert('Not authenticated. Please login first.')
+        return
+      }
 
-    setWorks([...works, newWork])
-    setFormData({ title: '', description: '', tags: '', imageUrl: '', projectUrl: '' })
-    setShowAddForm(false)
+      const payload = {
+        title: formData.title,
+        tags: formData.tags, // backend parses comma string
+        description: formData.description,
+        image_url: formData.imageUrl || null,
+        project_url: formData.projectUrl || null,
+      }
+
+      const response = await fetch('https://portfolio-sm6r.onrender.com/works', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        alert(data.error || data.message || 'Failed to add work')
+        return
+      }
+
+      const returned = data.work || data
+      const newWork: Work = {
+        id: returned.id || Date.now().toString(),
+        title: returned.title,
+        description: returned.description,
+        tags: returned.tags || (formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : []),
+        imageUrl: returned.image_url || returned.imageUrl || undefined,
+        projectUrl: returned.project_url || returned.projectUrl || undefined,
+      }
+
+      setWorks(prev => [...prev, newWork])
+      setFormData({ title: '', description: '', tags: '', imageUrl: '', projectUrl: '' })
+      setShowAddForm(false)
+      alert('Work added successfully!')
+    } catch (err) {
+      console.error('Error adding work:', err)
+      alert('Server error, try again later')
+    }
   }
 
   const handleDelete = (id: string) => {
@@ -154,7 +189,7 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await fetch("https://portfolio-sm6r.onrender.com/read");
+        const res = await fetch("http://localhost:3000/read");
         const data = await res.json();
 
         const mappedBlogs: BlogPost[] = data.map((item: any) => ({
@@ -185,6 +220,38 @@ const AdminPanel = () => {
     };
 
     fetchBlogs();
+  }, []);
+
+  // -------------------------------
+  // FETCH WORKS FROM API
+  // -------------------------------
+  useEffect(() => {
+    const fetchWorks = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/works');
+        if (!res.ok) {
+          console.error('Failed to fetch works', await res.text());
+          return;
+        }
+
+        const data = await res.json();
+
+        const mappedWorks: Work[] = (data || []).map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          tags: item.tags || [],
+          imageUrl: item.image_url || item.imageUrl || undefined,
+          projectUrl: item.project_url || item.projectUrl || undefined,
+        }));
+
+        setWorks(mappedWorks);
+      } catch (err) {
+        console.error('Failed to fetch works:', err);
+      }
+    };
+
+    fetchWorks();
   }, []);
 
   return (

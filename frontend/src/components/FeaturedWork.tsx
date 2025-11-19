@@ -25,33 +25,52 @@ export default function FeaturedWork() {
     return () => io.disconnect();
   }, [hasEntered]);
 
-  const projects = [
-    {
-      title: "E-Commerce Platform",
-      desc: "Full-stack application with real-time inventory syncing and admin dashboard.",
-      tags: ["React", "Node.js", "MongoDB"],
-      image:
-        "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&fit=crop&q=80",
-      projectUrl:
-        "https://ecommerce-demo.vercel.app/this-is-a-very-long-link-to-test-truncation",
-    },
-    {
-      title: "Task Management App",
-      desc: "Kanban-style task board with team collaboration tools.",
-      tags: ["Next.js", "TypeScript", "Supabase"],
-      image:
-        "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=1200&fit=crop&q=80",
-      projectUrl: "https://taskboard-app.netlify.app",
-    },
-    {
-      title: "Portfolio Dashboard",
-      desc: "Analytics and insights for creative professionals.",
-      tags: ["React", "D3.js", "Express"],
-      image:
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&fit=crop&q=80",
-      projectUrl: "https://portfolio-analytics.herokuapp.com",
-    },
-  ];
+  const [projects, setProjects] = useState<{
+    title: string;
+    desc: string;
+    tags: string[];
+    image: string;
+    projectUrl: string;
+  }[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+
+  // fetch works from backend and map to project shape
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchWorks = async () => {
+      try {
+        const res = await fetch('https://portfolio-sm6r.onrender.com/works');
+        if (!res.ok) {
+          console.error('Failed to fetch works', await res.text());
+          setLoadingProjects(false);
+          return;
+        }
+
+        const data = await res.json();
+
+        const mapped = (data || []).map((w: any) => ({
+          title: w.title || 'Untitled',
+          desc: w.description || '',
+          tags: w.tags || [],
+          image: w.image_url || w.imageUrl || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&fit=crop&q=80',
+          projectUrl: w.project_url || w.projectUrl || '#',
+        }));
+
+        if (mounted) setProjects(mapped);
+      } catch (err) {
+        console.error('Error fetching works:', err);
+      } finally {
+        if (mounted) setLoadingProjects(false);
+      }
+    };
+
+    fetchWorks();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const cardEntrance = {
     hidden: { opacity: 0, y: 30 },
