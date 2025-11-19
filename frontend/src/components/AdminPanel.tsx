@@ -189,7 +189,7 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await fetch("http://localhost:3000/read");
+        const res = await fetch("https://portfolio-sm6r.onrender.com/read");
         const data = await res.json();
 
         const mappedBlogs: BlogPost[] = data.map((item: any) => ({
@@ -228,7 +228,7 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchWorks = async () => {
       try {
-        const res = await fetch('http://localhost:3000/works');
+        const res = await fetch('https://portfolio-sm6r.onrender.com/works');
         if (!res.ok) {
           console.error('Failed to fetch works', await res.text());
           return;
