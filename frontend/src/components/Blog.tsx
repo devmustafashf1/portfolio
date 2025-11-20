@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Calendar,
@@ -7,7 +7,9 @@ import {
   Pin,
   User,
   Eye,
-  Send
+  Send,
+  Plus,
+  X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,6 +32,8 @@ const Blog = () => {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [shareStates, setShareStates] = useState<{ [key: string]: string }>({});
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [newMarkdown, setNewMarkdown] = useState("");
 
   // Fetch blogs
   useEffect(() => {
@@ -42,8 +46,8 @@ const Blog = () => {
           id: item.id,
           title: item.title,
           excerpt: item.excerpt,
-          content: item.content,
-          tags: item.tags,
+          content: item.content, // MARKDOWN FIELD
+          tags: item.tags || [],
           createdAt: item.created_at,
           readTime: item.read_time,
           author: item.author,
@@ -100,26 +104,30 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-        <div className="flex items-center justify-between mb-12">
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back
-          </button>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            Blog
-          </h1>
+        {/* Top Bar */}
+          <div className="flex items-center mb-12 relative">
+            {/* Back Button */}
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back
+            </button>
+          
+            {/* Blog Title */}
+            <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl font-bold text-white">
+              Blog
+            </h1>
+          </div>
 
-          <div></div>
-        </div>
 
+        {/* Blog List */}
         {loading ? (
           <div className="text-center py-16 text-slate-400">Loading blogs...</div>
         ) : blogs.length === 0 ? (
-          <div className="text-center py-16 text-slate-400">No blog posts yet. Check back soon!</div>
+          <div className="text-center py-16 text-slate-400">No blog posts yet.</div>
         ) : (
           <div className="space-y-8">
             {blogs.map((post, index) => (
@@ -138,71 +146,61 @@ const Blog = () => {
                   </div>
                 )}
 
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
-                  <div className="flex-1">
-                    <h2 className="text-xl md:text-2xl font-bold text-white mb-2 hover:text-cyan-400 transition-colors pr-16">
-                      {post.title}
-                    </h2>
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-2 hover:text-cyan-400 transition-colors pr-16">
+                  {post.title}
+                </h2>
 
-                    <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
-                      <User className="w-4 h-4" />
-                      <span>By {post.author}</span>
-                    </div>
-                  </div>
+                <p className="text-slate-300 mb-4">{post.excerpt}</p>
 
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-slate-400 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(post.createdAt).toLocaleDateString()}
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {post.readTime} min read
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
-                      {post.views} views
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-slate-300 mb-4 leading-relaxed">
-                  {post.excerpt}
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-2 flex-wrap">
-                    {post.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-xs bg-slate-700/50 px-3 py-1 rounded-full text-slate-300"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* UPDATED SHARE BUTTON */}
-                  <button
-                    onClick={(e) => handleShare(post.id, e)}
-                    className="flex items-center gap-2 px-3 py-1.5 
-                               bg-slate-800/60 hover:bg-slate-700/60 
-                               border border-slate-700 rounded-lg 
-                               transition-all text-xs ml-4 group"
-                  >
-                    <Send className="w-4 h-4 text-cyan-400 transition-transform group-hover:scale-110" />
-
-                    <span className="text-slate-300 group-hover:text-cyan-400 transition-colors">
-                      {shareStates[post.id] || 'Share'}
-                    </span>
-                  </button>
-                </div>
+                <button
+                  onClick={(e) => handleShare(post.id, e)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg"
+                >
+                  <Send className="w-4 h-4 text-cyan-400" />
+                  <span>{shareStates[post.id] || 'Share'}</span>
+                </button>
               </motion.article>
             ))}
           </div>
         )}
+
+        {/* MARKDOWN EDITOR MODAL */}
+        <AnimatePresence>
+          {editorOpen && (
+            <motion.div
+              className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-2xl w-full shadow-xl"
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.8 }}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">New Blog (Markdown)</h2>
+                  <button onClick={() => setEditorOpen(false)}>
+                    <X className="w-6 h-6 text-slate-400 hover:text-white" />
+                  </button>
+                </div>
+
+                <textarea
+                  value={newMarkdown}
+                  onChange={(e) => setNewMarkdown(e.target.value)}
+                  className="w-full h-72 p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none"
+                  placeholder="Write markdown here..."
+                />
+
+                <p className="text-sm text-slate-500 mt-2">
+                  ⚠ Send this markdown to backend developer to store in the <strong>content</strong> field.
+                </p>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
     </div>
   );
