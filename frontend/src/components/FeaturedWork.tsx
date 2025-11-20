@@ -28,7 +28,6 @@ export default function FeaturedWork() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
 
-  /** FETCH WITHOUT CHANGING BACKEND STRUCTURE */
   useEffect(() => {
     let mounted = true;
 
@@ -109,7 +108,7 @@ export default function FeaturedWork() {
               }}
             >
               <div className="flex items-start justify-between relative z-20">
-                <div className="max-w-[70%] md:max-w-[65%]">
+                <div className="w-full md:max-w-[65%]">
                   <h3
                     className={`text-xl md:text-2xl font-semibold transition-colors ${
                       isHovered ? "text-cyan-400" : "text-white"
@@ -118,7 +117,7 @@ export default function FeaturedWork() {
                     {project.title}
                   </h3>
 
-                  <p className="text-slate-400 text-sm md:text-base mt-2 leading-relaxed">
+                  <p className="text-slate-400 text-sm md:text-base mt-1">
                     {project.description}
                   </p>
 
@@ -138,7 +137,7 @@ export default function FeaturedWork() {
                           href={project.project_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-cyan-400 text-sm hover:underline max-w-[220px] truncate"
+                          className="text-cyan-400 text-sm hover:underline max-w-[200px] truncate"
                         >
                           {project.project_url}
                         </a>
