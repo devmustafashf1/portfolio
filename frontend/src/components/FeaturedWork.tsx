@@ -25,59 +25,40 @@ export default function FeaturedWork() {
     return () => io.disconnect();
   }, [hasEntered]);
 
-  const [projects, setProjects] = useState<{
-    title: string;
-    desc: string;
-    tags: string[];
-    image: string;
-    projectUrl: string;
-  }[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
 
-  // fetch works from backend and map to project shape
+  /** FETCH WITHOUT CHANGING BACKEND STRUCTURE */
   useEffect(() => {
     let mounted = true;
 
     const fetchWorks = async () => {
       try {
-        const res = await fetch('https://portfolio-sm6r.onrender.com/works');
+        const res = await fetch("https://portfolio-sm6r.onrender.com/works");
         if (!res.ok) {
-          console.error('Failed to fetch works', await res.text());
-          setLoadingProjects(false);
+          console.error("Fetch failed:", await res.text());
           return;
         }
 
         const data = await res.json();
-
-        const mapped = (data || []).map((w: any) => ({
-          title: w.title || 'Untitled',
-          desc: w.description || '',
-          tags: w.tags || [],
-          image: w.image_url || w.imageUrl || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&fit=crop&q=80',
-          projectUrl: w.project_url || w.projectUrl || '#',
-        }));
-
-        if (mounted) setProjects(mapped);
+        if (mounted) setProjects(data);
       } catch (err) {
-        console.error('Error fetching works:', err);
+        console.error("Error fetching works:", err);
       } finally {
-        if (mounted) setLoadingProjects(false);
+        setLoadingProjects(false);
       }
     };
 
     fetchWorks();
-
-    return () => {
-      mounted = false;
-    };
+    return () => (mounted = false);
   }, []);
 
   const cardEntrance = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 20 },
     show: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, delay: i * 0.12 },
+      transition: { duration: 0.5, delay: i * 0.1 },
     }),
   };
 
@@ -109,22 +90,26 @@ export default function FeaturedWork() {
               key={idx}
               custom={idx}
               variants={cardEntrance}
-              initial={hasEntered ? false : "hidden"}
-              animate={hasEntered ? undefined : "show"}
+              initial="hidden"
+              animate="show"
               layout
-              className={`relative p-6 md:p-8 rounded-2xl bg-slate-800/30 border border-slate-700 backdrop-blur-xl transition-all cursor-pointer
-                ${isHovered ? "shadow-2xl" : "shadow-md"}`}
-              onMouseEnter={() => window.innerWidth >= 768 && setHoveredIndex(idx)}
-              onMouseLeave={() => window.innerWidth >= 768 && setHoveredIndex(null)}
+              transition={{ layout: { duration: 0.35, ease: "easeInOut" } }}
+              className={`relative overflow-hidden p-6 md:p-8 rounded-2xl bg-slate-800/30 border border-slate-700 backdrop-blur-xl transition-all cursor-pointer
+                ${isHovered ? "shadow-xl scale-[1.01]" : "shadow-md"}`}
+              onMouseEnter={() =>
+                window.innerWidth >= 768 && setHoveredIndex(idx)
+              }
+              onMouseLeave={() =>
+                window.innerWidth >= 768 && setHoveredIndex(null)
+              }
               onClick={() => {
                 if (window.innerWidth < 768) {
                   setHoveredIndex(isHovered ? null : idx);
                 }
               }}
             >
-              {/* Text + Arrow */}
-              <div className="flex items-start justify-between">
-                <div>
+              <div className="flex items-start justify-between relative z-20">
+                <div className="max-w-[70%] md:max-w-[65%]">
                   <h3
                     className={`text-xl md:text-2xl font-semibold transition-colors ${
                       isHovered ? "text-cyan-400" : "text-white"
@@ -133,28 +118,29 @@ export default function FeaturedWork() {
                     {project.title}
                   </h3>
 
-                  <p className="text-slate-400 text-sm md:text-base mt-1">{project.desc}</p>
+                  <p className="text-slate-400 text-sm md:text-base mt-2 leading-relaxed">
+                    {project.description}
+                  </p>
 
-                  {/* URL link below description */}
+                  {/* URL */}
                   <AnimatePresence>
                     {isHovered && (
                       <motion.div
                         key="visit-link"
-                        initial={{ opacity: 0, y: 5 }}
+                        initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 5 }}
-                        transition={{ duration: 0.25 }}
-                        className="mt-1 flex items-center gap-1"
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-2 flex items-center gap-2"
                       >
-                        <LinkIcon className="w-4 h-4 flex-shrink-0 text-cyan-400" />
+                        <LinkIcon className="w-4 h-4 text-cyan-400" />
                         <a
-                          href={project.projectUrl}
+                          href={project.project_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-cyan-400 text-sm truncate max-w-[250px] hover:underline"
-                          title={project.projectUrl}
+                          className="text-cyan-400 text-sm hover:underline max-w-[220px] truncate"
                         >
-                          {project.projectUrl}
+                          {project.project_url}
                         </a>
                       </motion.div>
                     )}
@@ -166,7 +152,7 @@ export default function FeaturedWork() {
                   className="hidden md:block"
                   animate={isHovered ? { x: -10 } : { x: 0 }}
                   transition={{ duration: 0.25 }}
-                  onClick={() => window.open(project.projectUrl, "_blank")}
+                  onClick={() => window.open(project.project_url, "_blank")}
                 >
                   <ArrowRight
                     className={`w-6 h-6 ${
@@ -177,8 +163,8 @@ export default function FeaturedWork() {
               </div>
 
               {/* Tags */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {project.tags.map((tag) => (
+              <div className="mt-4 flex flex-wrap gap-2 z-20 relative">
+                {project.tags?.map((tag: string) => (
                   <span
                     key={tag}
                     className="px-3 py-1 text-xs bg-slate-700/40 border border-slate-600 rounded-full text-slate-300"
@@ -188,33 +174,40 @@ export default function FeaturedWork() {
                 ))}
               </div>
 
-              {/* Desktop Image */}
+              {/* Desktop Floating Image (kept OUTSIDE text area) */}
               <AnimatePresence>
                 {isHovered && window.innerWidth >= 768 && (
                   <motion.div
-                    className="hidden md:block absolute top-4 right-4 w-64 h-40 rounded-xl overflow-hidden shadow-xl border border-slate-600 bg-black"
-                    initial={{ x: 150, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: 150, opacity: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    initial={{ opacity: 0, x: 120 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 120 }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    className="hidden md:block absolute top-8 right-8 w-64 h-44 rounded-xl overflow-hidden shadow-xl border border-slate-600 bg-black z-10"
                   >
-                    <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+                    <img
+                      src={project.image_url}
+                      alt={project.title}
+                      className="w-full h-full object-cover"
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Mobile Image */}
-              <AnimatePresence initial={false}>
+              {/* Mobile Expand Image */}
+              <AnimatePresence>
                 {isHovered && window.innerWidth < 768 && (
                   <motion.div
-                    key="mobile-img"
-                    className="md:hidden w-full mt-4 rounded-xl overflow-hidden border border-slate-600 shadow-xl"
-                    initial={{ y: 50, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 50, opacity: 0 }}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 40 }}
                     transition={{ duration: 0.35 }}
+                    className="w-full mt-4 rounded-xl overflow-hidden shadow-xl border border-slate-600"
                   >
-                    <img src={project.image} alt={project.title} className="w-full h-44 object-cover" />
+                    <img
+                      src={project.image_url}
+                      alt={project.title}
+                      className="w-full h-48 object-cover"
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>

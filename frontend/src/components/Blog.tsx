@@ -7,7 +7,6 @@ import {
   Pin,
   User,
   Eye,
-  Share,
   Send
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
