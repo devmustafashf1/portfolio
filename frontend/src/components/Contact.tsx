@@ -45,7 +45,7 @@ export default function Contact() {
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <a
-            href="https://github.com"
+            href="https://github.com/devmustafashf1"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-slate-800 p-3 md:p-4 rounded-full hover:bg-cyan-500 hover:scale-110 transition-all"
@@ -61,7 +61,7 @@ export default function Contact() {
             <Linkedin className="w-5 h-5 md:w-6 md:h-6" />
           </a>
           <a
-            href="mailto:contact@mustafashf.com"
+            href="mailto:devmustafashf@gmail.com"
             className="bg-slate-800 p-3 md:p-4 rounded-full hover:bg-cyan-500 hover:scale-110 transition-all"
           >
             <Mail className="w-5 h-5 md:w-6 md:h-6" />
