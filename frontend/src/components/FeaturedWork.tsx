@@ -49,7 +49,7 @@ export default function FeaturedWork() {
     };
 
     fetchWorks();
-    return () => (mounted = false);
+    return () => { mounted = false; };
   }, []);
 
   const cardEntrance = {
