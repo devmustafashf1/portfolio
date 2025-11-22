@@ -75,7 +75,7 @@ export default function FeaturedWork() {
     >
       {/* Section Header */}
       <div className="flex items-center gap-4 mb-12 md:mb-16">
-        <span className="text-cyan-400 text-3xl">//</span>
+        <span className="text-slate-600 font-bold text-3xl">//</span>
         <h2 className="text-3xl md:text-4xl font-bold">Featured Work</h2>
       </div>
 

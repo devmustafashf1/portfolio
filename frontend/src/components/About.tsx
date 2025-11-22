@@ -28,7 +28,7 @@ export default function About() {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div className="text-3xl md:text-4xl font-bold flex items-center gap-3 md:mt-16 mt-10">
-         <span className="text-slate-600 text-2xl ">//</span>
+         <span className="text-slate-600 font-bold text-3xl ">//</span>
          About Me
         </div>
       </motion.h2>
