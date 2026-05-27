@@ -1,219 +1,155 @@
-import { ArrowRight, Link as LinkIcon } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
+import { ArrowRight, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { PROJECTS, type CaseStudy } from "../data/projects";
 
 export default function FeaturedWork() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [hasEntered, setHasEntered] = useState(false);
-  const sectionRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasEntered) {
-          setHasEntered(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.25 }
-    );
-
-    io.observe(el);
-    return () => io.disconnect();
-  }, [hasEntered]);
-
-  const [projects, setProjects] = useState<any[]>([]);
-  const [loadingProjects, setLoadingProjects] = useState(true);
+  const navigate = useNavigate();
+  const [projects, setProjects] = useState<CaseStudy[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
-
-    const fetchWorks = async () => {
-      try {
-        const res = await fetch("https://portfolio-sm6r.onrender.com/works");
-        if (!res.ok) {
-          console.error("Fetch failed:", await res.text());
-          return;
+    fetch("https://portfolio-sm6r.onrender.com/works")
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((data: unknown) => {
+        if (!mounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          setProjects(data as CaseStudy[]);
+        } else {
+          setProjects(PROJECTS);
         }
-
-        const data = await res.json();
-        if (mounted) setProjects(data);
-      } catch (err) {
-        console.error("Error fetching works:", err);
-      } finally {
-        setLoadingProjects(false);
-      }
-    };
-
-    fetchWorks();
+      })
+      .catch(() => { if (mounted) setProjects(PROJECTS); })
+      .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, []);
 
-  const cardEntrance = {
-    hidden: { opacity: 0, y: 20 },
-    show: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, delay: i * 0.1 },
-    }),
+  const goTo = (p: CaseStudy) => {
+    if (p.slug) {
+      navigate(`/work/${p.slug}`);
+    } else if (p.project_url && p.project_url !== "#") {
+      window.open(p.project_url, "_blank");
+    }
   };
 
   return (
     <motion.section
       id="work"
-      ref={sectionRef}
-      className="mb-24 md:mb-40 max-w-6xl mx-auto px-4"
-      initial={hasEntered ? false : "hidden"}
-      animate={hasEntered ? false : "show"}
-      variants={{
-        hidden: { opacity: 0, y: 40 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.7 } },
-      }}
+      className="mb-24 md:mb-32"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.7, ease: "easeOut" }}
     >
-      {/* Section Header */}
-      <div className="flex items-center gap-4 mb-12 md:mb-16">
-        <span className="text-slate-600 font-bold text-3xl">//</span>
-        <h2 className="text-3xl md:text-4xl font-bold">Featured Work</h2>
+      <p className="text-xs font-semibold tracking-widest text-[#555] uppercase mb-4">
+        Proof of Work
+      </p>
+      <div className="flex items-end justify-between mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold leading-snug">Case studies</h2>
+        <p className="text-sm text-[#666] hidden md:block max-w-xs text-right">
+          Real projects. Real problems. What was broken, what I learned, what changed.
+        </p>
       </div>
 
-      {/* Project Cards */}
-      <div className="flex flex-col gap-10">
-        {projects.map((project, idx) => {
-          const isHovered = hoveredIndex === idx;
-
-          return (
+      {loading ? (
+        <div className="grid md:grid-cols-2 gap-5">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-64 rounded-2xl bg-[#0f0f0f] border border-white/[0.06] animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* First project — large featured */}
+          {projects[0] && (
             <motion.div
-              key={idx}
-              custom={idx}
-              variants={cardEntrance}
-              initial="hidden"
-              animate="show"
-              layout
-              transition={{ layout: { duration: 0.35, ease: "easeInOut" } }}
-              className={`relative overflow-hidden p-6 md:p-8 rounded-2xl bg-slate-800/30 border border-slate-700 backdrop-blur-xl transition-all cursor-pointer
-                ${isHovered ? "shadow-xl scale-[1.01]" : "shadow-md"}`}
-              onMouseEnter={() =>
-                window.innerWidth >= 768 && setHoveredIndex(idx)
-              }
-              onMouseLeave={() =>
-                window.innerWidth >= 768 && setHoveredIndex(null)
-              }
-              onClick={() => {
-                if (window.innerWidth < 768) {
-                  setHoveredIndex(isHovered ? null : idx);
-                }
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              onClick={() => goTo(projects[0])}
+              className="group mb-5 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl overflow-hidden cursor-pointer hover:border-white/[0.12] transition-all duration-300"
             >
-              <div className="flex items-start justify-between relative z-20">
-                <div className="w-full md:max-w-[65%]">
-                  <h3
-                    className={`text-xl md:text-2xl font-semibold transition-colors ${
-                      isHovered ? "text-cyan-400" : "text-white"
-                    }`}
-                  >
+              <div className="grid md:grid-cols-2">
+                <div className="p-7 md:p-9 flex flex-col justify-between">
+                  <div>
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {projects[0].tags?.map((tag) => (
+                        <span key={tag} className="text-xs text-[#666] bg-white/[0.04] border border-white/[0.06] px-2.5 py-1 rounded-full">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-semibold mb-3 group-hover:text-[#7B5CF6] transition-colors">
+                      {projects[0].title}
+                    </h3>
+                    <p className="text-sm text-[#888] leading-relaxed">{projects[0].description}</p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-6 text-sm text-[#7B5CF6] font-medium">
+                    Read case study
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+                {projects[0].image_url && (
+                  <div className="relative h-52 md:h-auto overflow-hidden">
+                    <img
+                      src={projects[0].image_url}
+                      alt={projects[0].title}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                    />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Remaining projects — smaller grid */}
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
+            {projects.slice(1).map((project, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                onClick={() => goTo(project)}
+                className="group bg-[#0f0f0f] border border-white/[0.06] rounded-2xl overflow-hidden cursor-pointer hover:border-white/[0.12] transition-all duration-300"
+              >
+                {project.image_url && (
+                  <div className="relative h-40 overflow-hidden">
+                    <img
+                      src={project.image_url}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                    />
+                  </div>
+                )}
+                <div className="p-5">
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {project.tags?.slice(0, 2).map((tag) => (
+                      <span key={tag} className="text-xs text-[#555] bg-white/[0.04] border border-white/[0.05] px-2 py-0.5 rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <h3 className="text-base font-semibold mb-1.5 group-hover:text-[#7B5CF6] transition-colors">
                     {project.title}
                   </h3>
-
-                  <p className="text-slate-400 text-sm md:text-base mt-1">
-                    {project.description}
-                  </p>
-
-                  {/* URL */}
-                  <AnimatePresence>
-                    {isHovered && (
-                      <motion.div
-                        key="visit-link"
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 6 }}
-                        transition={{ duration: 0.3 }}
-                        className="mt-2 flex items-center gap-2"
-                      >
-                        <LinkIcon className="w-4 h-4 text-cyan-400" />
-                        <a
-                          href={project.project_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-cyan-400 text-sm hover:underline max-w-[200px] truncate"
-                        >
-                          {project.project_url}
-                        </a>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  <p className="text-xs text-[#666] leading-relaxed line-clamp-2">{project.description}</p>
+                  <div className="flex items-center gap-1.5 mt-4 text-xs text-[#7B5CF6] font-medium">
+                    {project.slug ? "Read case study" : "View more"}
+                    {project.slug
+                      ? <ArrowRight className="w-3 h-3" />
+                      : <ExternalLink className="w-3 h-3" />
+                    }
+                  </div>
                 </div>
-
-                {/* Desktop Arrow */}
-                <motion.div
-                  className="hidden md:block"
-                  animate={isHovered ? { x: -10 } : { x: 0 }}
-                  transition={{ duration: 0.25 }}
-                  onClick={() => window.open(project.project_url, "_blank")}
-                >
-                  <ArrowRight
-                    className={`w-6 h-6 ${
-                      isHovered ? "text-cyan-400" : "text-slate-500"
-                    }`}
-                  />
-                </motion.div>
-              </div>
-
-              {/* Tags */}
-              <div className="mt-4 flex flex-wrap gap-2 z-20 relative">
-                {project.tags?.map((tag: string) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 text-xs bg-slate-700/40 border border-slate-600 rounded-full text-slate-300"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Desktop Floating Image (kept OUTSIDE text area) */}
-              <AnimatePresence>
-                {isHovered && window.innerWidth >= 768 && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 120 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 120 }}
-                    transition={{ duration: 0.45, ease: "easeOut" }}
-                    className="hidden md:block absolute top-8 right-8 w-64 h-44 rounded-xl overflow-hidden shadow-xl border border-slate-600 bg-black z-10"
-                  >
-                    <img
-                      src={project.image_url}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Mobile Expand Image */}
-              <AnimatePresence>
-                {isHovered && window.innerWidth < 768 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 40 }}
-                    transition={{ duration: 0.35 }}
-                    className="w-full mt-4 rounded-xl overflow-hidden shadow-xl border border-slate-600"
-                  >
-                    <img
-                      src={project.image_url}
-                      alt={project.title}
-                      className="w-full h-48 object-cover"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          );
-        })}
-      </div>
+              </motion.div>
+            ))}
+          </div>
+        </>
+      )}
     </motion.section>
   );
 }

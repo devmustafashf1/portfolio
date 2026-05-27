@@ -1,145 +1,115 @@
-"use client";
-import { Sparkles, ArrowRight } from "lucide-react";
-import { Typewriter } from "react-simple-typewriter";
-import { motion, Variants } from "framer-motion";
-import heroImg from "../../public/gm-blur.jpg";
+import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import heroImg from "../../public/gm-formal.png";
 
-// ✅ Define variants properly using the Variants type
-const container: Variants = {
+const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.3, // delay between child animations
-    },
+    transition: { staggerChildren: 0.12 },
   },
 };
 
-const item: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+const item = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
 };
 
 export default function Hero() {
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
-    <motion.section 
-      className="mb-20 mt-12 md:mt-20"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.8 }}
-    >
-      <div className="grid md:grid-cols-2 gap-10 items-center">
-        {/* Left side */}
+    <section className="mb-28 md:mb-36">
+      <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+
+        {/* Left */}
         <motion.div
-          className="text-center md:text-left flex flex-col items-center md:items-start"
           variants={container}
           initial="hidden"
           animate="show"
+          className="flex flex-col items-start"
         >
-          {/* 1️⃣ Top text */}
-          <motion.div
-            className="flex items-center justify-center md:justify-start gap-2 mb-4"
-            variants={item}
-          >
-            <Sparkles className="w-5 h-5 text-cyan-400" />
-            <h1
-              style={{
-                color: "#22d3ee",
-                fontSize: "0.875rem",
-                letterSpacing: "0.05em",
-                display: "inline-block",
-              }}
-            >
-              <Typewriter
-                words={[
-                  "DEVELOPER & CREATOR",
-                  "CONTENT CREATOR",
-                  "PRODUCT DESIGNER",
-                  "PART TIME TEACHER",
-                ]}
-                loop
-                cursor
-                cursorStyle="▋"
-                typeSpeed={70}
-                deleteSpeed={40}
-                delaySpeed={1200}
-              />
-            </h1>
+          {/* Available badge */}
+          <motion.div variants={item} className="flex items-center gap-2 mb-6">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-sm text-[#888]">Available for new projects</span>
           </motion.div>
 
-          {/* 2️⃣ Name */}
+          {/* Headline */}
           <motion.h1
-            className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 leading-tight"
             variants={item}
+            className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.08] tracking-tight mb-5"
           >
-            Mustafa Shf
+            I build products that actually ship.
           </motion.h1>
 
-          {/* 3️⃣ Description */}
+          {/* Subtext */}
           <motion.p
-            className="text-base sm:text-lg md:text-2xl text-slate-400 mb-6 leading-relaxed max-w-md md:max-w-none"
             variants={item}
+            className="text-base md:text-lg text-[#888] leading-relaxed mb-8 max-w-md"
           >
-            Crafting digital experiences that push boundaries and{" "}
-            <span className="text-white font-medium">make an impact</span>
+            Full-stack developer and technical partner for founders and teams who need
+            real execution — not just code. I take ownership of messy, delayed, or
+            stalled products and move them forward across web and mobile.
           </motion.p>
 
-          {/* 4️⃣ Buttons */}
-          <motion.div
-            className="flex justify-center md:justify-start gap-4 mt-6 flex-wrap"
-            variants={item}
-          >
-            <a
-              href="#contact"
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 px-7 py-3 rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all flex items-center gap-2 group"
+          {/* Stats */}
+          <motion.div variants={item} className="flex items-center gap-8 mb-10">
+            <div>
+              <p className="text-2xl font-bold">4+</p>
+              <p className="text-xs text-[#666] mt-0.5">Years</p>
+            </div>
+            <div className="w-px h-8 bg-white/[0.08]" />
+            <div>
+              <p className="text-2xl font-bold">20+</p>
+              <p className="text-xs text-[#666] mt-0.5">Projects</p>
+            </div>
+            <div className="w-px h-8 bg-white/[0.08]" />
+            <div>
+              <p className="text-2xl font-bold">5★</p>
+              <p className="text-xs text-[#666] mt-0.5">Rating</p>
+            </div>
+          </motion.div>
+
+          {/* CTAs */}
+          <motion.div variants={item} className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => scrollTo('contact')}
+              className="flex items-center gap-2 bg-[#7B5CF6] hover:bg-[#6B4EF0] text-white text-sm font-medium px-6 py-3 rounded-full transition-all duration-200 group"
             >
-              Let's Talk
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </a>
-            <a
-              href="#work"
-              className="border border-slate-700 px-7 py-3 rounded-full font-medium hover:border-cyan-400 hover:text-cyan-400 transition-all"
+              Book a Free Call
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+            <button
+              onClick={() => scrollTo('work')}
+              className="flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-full border border-white/[0.1] text-[#aaa] hover:text-white hover:border-white/25 transition-all duration-200"
             >
-              View Work
-            </a>
+              See My Work
+            </button>
           </motion.div>
         </motion.div>
 
-        {/* Right side (Image section) */}
+        {/* Right — Photo card */}
         <motion.div
-          className="flex justify-center md:justify-end mt-8 md:mt-0"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
+          className="flex justify-center md:justify-end"
         >
-          <style>{`
-            @keyframes float {
-              0%, 100% { transform: translateY(0px); }
-              50% { transform: translateY(-20px); }
-            }
-            @keyframes glow {
-              0%, 100% { box-shadow: 0 0 60px rgba(34, 211, 238, 0.3), inset 0 0 60px rgba(34, 211, 238, 0.1); }
-              50% { box-shadow: 0 0 80px rgba(34, 211, 238, 0.5), inset 0 0 80px rgba(34, 211, 238, 0.2); }
-            }
-            .profile-circle {
-              animation: float 3s ease-in-out infinite, glow 3s ease-in-out infinite;
-            }
-          `}</style>
-
-          <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-96 md:h-96">
-            <div className="absolute inset-1 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-full flex items-center justify-center overflow-hidden profile-circle">
-              <img
-                src={heroImg}
-                alt="Mustafa Shf"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="absolute inset-0 rounded-full border-2 border-cyan-400/30"></div>
-            <div className="absolute -inset-2 rounded-full border border-blue-500/20"></div>
+          <div className="relative w-72 h-80 sm:w-80 sm:h-96 md:w-[380px] md:h-[460px] rounded-2xl overflow-hidden bg-[#111] border border-white/[0.07]">
+            <img
+              src={heroImg}
+              alt="Mustafa"
+              className="w-full h-full object-cover object-top"
+            />
+            {/* Subtle gradient overlay at bottom */}
+            <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[#090909]/60 to-transparent" />
           </div>
         </motion.div>
+
       </div>
-    </motion.section>
+    </section>
   );
 }

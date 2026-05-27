@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Code2, Menu, X } from "lucide-react";
-import { motion } from "framer-motion";
-import { LogIn } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Header() {
@@ -11,104 +10,97 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const smoothScroll = (targetId: string) => {
+    setMenuOpen(false);
     if (isHomePage) {
       const element = document.getElementById(targetId);
       if (element) {
-        element.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
-        });
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } else {
       navigate('/', { state: { scrollTo: targetId } });
     }
   };
 
+  const navLinks = [
+    { label: 'Offers', id: 'services' },
+    { label: 'Work', id: 'work' },
+    { label: 'About', id: 'about' },
+    { label: 'Contact', id: 'contact' },
+  ];
+
   return (
-    <motion.nav 
+    <motion.nav
       className="flex justify-between items-center mb-16 md:mb-20 relative"
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <Link to="/" className="flex items-center gap-2">
-        <Code2 className="w-6 h-6 text-cyan-400" />
-        <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-          GM
-        </span>
+      <Link to="/" className="text-lg font-semibold tracking-tight text-white hover:text-white/80 transition-colors">
+        Mustafa
       </Link>
 
-      {/* Desktop Links & Login */}
+      {/* Desktop nav */}
       <div className="hidden md:flex items-center gap-8">
-        <button onClick={() => smoothScroll('about')} className="hover:text-cyan-400 transition-colors">
-          About
-        </button>
-        <button onClick={() => smoothScroll('work')} className="hover:text-cyan-400 transition-colors">
-          Work
-        </button>
-        <Link to="/blog" className="hover:text-cyan-400 transition-colors">
-          Blog
-        </Link>
-        <button onClick={() => smoothScroll('contact')} className="hover:text-cyan-400 transition-colors">
-          Contact
-        </button>
-        <Link 
-          to="/login"
-          className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all flex items-center justify-center gap-2"
-        >
-          <LogIn className="w-5 h-5 text-white" />
-           login
-        </Link>
-
+        {navLinks.map((link) => (
+          <button
+            key={link.id}
+            onClick={() => smoothScroll(link.id)}
+            className="text-sm text-[#888] hover:text-white transition-colors"
+          >
+            {link.label}
+          </button>
+        ))}
       </div>
 
-      {/* Mobile Menu Button */}
+      <div className="hidden md:flex items-center gap-3">
+        <button
+          onClick={() => smoothScroll('contact')}
+          className="flex items-center gap-2 bg-[#7B5CF6] hover:bg-[#6B4EF0] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-all duration-200"
+        >
+          Book a Free Call
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Mobile burger */}
       <button
-        className="md:hidden text-cyan-400 focus:outline-none"
+        className="md:hidden text-[#888] hover:text-white transition-colors"
         onClick={() => setMenuOpen(!menuOpen)}
       >
-        {menuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+        {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
 
-      {/* Mobile Dropdown */}
-      {menuOpen && (
-        <div className="absolute top-14 right-0 bg-slate-900 border border-slate-800 rounded-2xl shadow-lg flex flex-col items-center gap-4 p-6 md:hidden w-48 z-50">
-          <button
-            onClick={() => { smoothScroll('about'); setMenuOpen(false); }}
-            className="hover:text-cyan-400 transition-colors"
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-14 right-0 bg-[#141414] border border-white/[0.07] rounded-2xl shadow-2xl flex flex-col gap-1 p-3 md:hidden w-52 z-50"
           >
-            About
-          </button>
-          <button
-            onClick={() => { smoothScroll('work'); setMenuOpen(false); }}
-            className="hover:text-cyan-400 transition-colors"
-          >
-            Work
-          </button>
-          <Link
-            to="/blog"
-            onClick={() => setMenuOpen(false)}
-            className="hover:text-cyan-400 transition-colors"
-          >
-            Blog
-          </Link>
-          <button
-            onClick={() => { smoothScroll('contact'); setMenuOpen(false); }}
-            className="hover:text-cyan-400 transition-colors"
-          >
-            Contact
-          </button>
-          <Link
-            to="/login"
-            onClick={() => setMenuOpen(false)}
-            className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all mt-2 flex items-center justify-center gap-2"
-          >
-           <LogIn className="w-5 h-5 text-white" />
-           login
-          </Link>
-
-        </div>
-      )}
+            {navLinks.map((link) => (
+              <button
+                key={link.id}
+                onClick={() => smoothScroll(link.id)}
+                className="text-left text-sm text-[#888] hover:text-white hover:bg-white/[0.05] transition-colors px-4 py-2.5 rounded-xl"
+              >
+                {link.label}
+              </button>
+            ))}
+            <div className="border-t border-white/[0.07] mt-1 pt-2">
+              <button
+                onClick={() => smoothScroll('contact')}
+                className="w-full flex items-center justify-center gap-2 bg-[#7B5CF6] hover:bg-[#6B4EF0] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-all"
+              >
+                Book a Free Call
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

@@ -1,92 +1,78 @@
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+
+const reviews = [
+  {
+    name: "Ahmad Usman",
+    role: "Founder",
+    company: "LogiTech",
+    review:
+      "Mustafa delivered strong execution on our wallet app and handled it better than most senior developers I've worked with. Communication was clear and the backend was solid.",
+    avatar: "AU",
+  },
+  {
+    name: "Fauath",
+    role: "CEO",
+    company: "Traversiq",
+    review:
+      "Collaborating on Traversiq was smooth because we could work across frontend and backend without constant direction. He solved problems and kept delivery moving without hand-holding.",
+    avatar: "F",
+  },
+  {
+    name: "Chris",
+    role: "Founder",
+    company: "SaaS Co.",
+    review:
+      "The real product goes seriously and comes across as a capable platform. The booking and user journey improvements made a real difference for our team.",
+    avatar: "C",
+  },
+];
 
 export default function ReviewsBar() {
-  const reviews = [
-    {
-      name: "Sarah Johnson",
-      role: "Product Manager",
-      company: "TechCorp",
-      review: "Exceptional developer with great attention to detail. Delivered our project ahead of schedule.",
-      rating: 5
-    },
-    {
-      name: "Mike Chen",
-      role: "CTO",
-      company: "StartupXYZ",
-      review: "Outstanding technical skills and communication. Would definitely work with again.",
-      rating: 5
-    },
-    {
-      name: "Emily Davis",
-      role: "Design Lead",
-      company: "Creative Agency",
-      review: "Perfect collaboration between design and development. Brought our vision to life beautifully.",
-      rating: 5
-    },
-    {
-      name: "Alex Rodriguez",
-      role: "Founder",
-      company: "E-commerce Plus",
-      review: "Transformed our online presence completely. Sales increased by 200% after the new website launch.",
-      rating: 5
-    },
-    {
-      name: "Lisa Thompson",
-      role: "Marketing Director",
-      company: "Digital Solutions",
-      review: "Professional, reliable, and incredibly talented. The best developer we've worked with.",
-      rating: 5
-    }
-  ];
-
   return (
-    <div className="mb-24 md:mb-40 overflow-hidden">
-      <div className="flex items-center gap-4 mb-12 md:mb-16 max-w-6xl mx-auto px-4">
-        <span className="text-slate-600 font-bold text-3xl">//</span>
-        <h2 className="text-3xl md:text-4xl font-bold">Client Reviews</h2>
-      </div>
+    <motion.section
+      className="mb-24 md:mb-32"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.7, ease: "easeOut" }}
+    >
+      <p className="text-xs font-semibold tracking-widest text-[#555] uppercase mb-4">
+        Social Proof
+      </p>
+      <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-snug">
+        Proof from real product teams
+      </h2>
+      <p className="text-[#666] text-sm mb-12 max-w-md">
+        Honest feedback from founders and teams I've moved forward.
+      </p>
 
-      <div className="relative">
-        <motion.div
-          className="flex gap-6"
-          animate={{
-            x: [0, -100 * reviews.length]
-          }}
-          transition={{
-            x: {
-              repeat: Infinity,
-              repeatType: "loop",
-              duration: 20,
-              ease: "linear"
-            }
-          }}
-        >
-          {[...reviews, ...reviews].map((review, idx) => (
-            <div
-              key={idx}
-              className="flex-shrink-0 w-80 bg-slate-800/30 border border-slate-700 rounded-xl p-6 backdrop-blur-xl"
-            >
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(review.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                ))}
+      <div className="grid md:grid-cols-3 gap-5">
+        {reviews.map((review, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            className="bg-[#0f0f0f] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between gap-6"
+          >
+            <p className="text-sm text-[#999] leading-relaxed">
+              "{review.review}"
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#7B5CF6]/20 flex items-center justify-center text-xs font-bold text-[#7B5CF6]">
+                {review.avatar}
               </div>
-              
-              <p className="text-slate-300 mb-4 leading-relaxed">
-                "{review.review}"
-              </p>
-              
               <div>
-                <p className="font-semibold text-white">{review.name}</p>
-                <p className="text-sm text-slate-400">
-                  {review.role} at {review.company}
+                <p className="text-sm font-semibold text-white">{review.name}</p>
+                <p className="text-xs text-[#555]">
+                  {review.role} · {review.company}
                 </p>
               </div>
             </div>
-          ))}
-        </motion.div>
+          </motion.div>
+        ))}
       </div>
-    </div>
+    </motion.section>
   );
 }
