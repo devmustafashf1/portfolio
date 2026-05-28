@@ -18,6 +18,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^8.0.9",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "swagger-ui-express": "^5.0.1"
   }
 }
