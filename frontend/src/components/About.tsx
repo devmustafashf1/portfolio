@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { FileText, Github, Linkedin, ExternalLink } from "lucide-react";
-import heroImg from "../../public/gm-formal.png";
+import heroImg from "../../public/gm-aesthetic.png";
 
 const skills = [
   "React Native", "Next.js", "React", "Node.js",

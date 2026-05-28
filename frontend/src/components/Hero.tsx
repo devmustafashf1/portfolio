@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import heroImg from "../../public/gm-formal.png";
+import heroImg from "../../public/gm-aesthetic.png";
 
 const container = {
   hidden: { opacity: 0 },
