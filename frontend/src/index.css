@@ -39,3 +39,8 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes marquee-rtl {
+  from { transform: translateX(0%); }
+  to   { transform: translateX(-50%); }
+}

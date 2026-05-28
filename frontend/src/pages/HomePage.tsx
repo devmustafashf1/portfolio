@@ -1,4 +1,5 @@
 import Hero from '../components/Hero';
+import ClientsRoller from '../components/ClientsRoller';
 import Problems from '../components/Problems';
 import Services from '../components/Services';
 import FeaturedWork from '../components/FeaturedWork';
@@ -12,6 +13,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <ClientsRoller />
       <Problems />
       <Services />
       <FeaturedWork />
