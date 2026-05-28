@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { ArrowLeft, Calendar, Clock, Pin, User, Eye, Share2, Copy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, Calendar, Clock, Copy, Pin, Share2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
-import rehypeHighlight from "rehype-highlight";
+
+const API = `${import.meta.env.VITE_API_URL}/read`;
 
 interface BlogPost {
   id: string;
@@ -13,14 +12,13 @@ interface BlogPost {
   content: string;
   excerpt: string;
   tags: string[];
-  createdAt: string;
-  readTime: number;
+  created_at: string;
+  read_time: number;
   author: string;
-  isPinned: boolean;
-  views: number;
+  pinned: boolean;
 }
 
-const BlogDetail = () => {
+export default function BlogDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [blog, setBlog] = useState<BlogPost | null>(null);
@@ -28,52 +26,23 @@ const BlogDetail = () => {
   const [shareText, setShareText] = useState("Share");
 
   useEffect(() => {
-    const fetchBlog = async () => {
-      if (!id) return;
-
-      try {
-        const res = await fetch(`https://portfolio-sm6r.onrender.com/read/${id}`);
-        if (!res.ok) {
-          navigate("/blog");
-          return;
-        }
-
-        const data = await res.json();
-
-        const mappedBlog: BlogPost = {
-          id: data.id,
-          title: data.title,
-          excerpt: data.excerpt,
-          content: data.content, // MARKDOWN FIELD
-          tags: data.tags,
-          createdAt: data.created_at,
-          readTime: data.read_time,
-          author: data.author,
-          isPinned: data.pinned,
-          views: parseInt(localStorage.getItem(`blog_views_${data.id}`) || "0"),
-        };
-
-        setBlog(mappedBlog);
-
-        const currentViews = localStorage.getItem(`blog_views_${data.id}`);
-        const newViews = currentViews ? parseInt(currentViews) + 1 : 1;
-        localStorage.setItem(`blog_views_${data.id}`, newViews.toString());
-
-        setLoading(false);
-      } catch (err) {
-        console.error("Failed to fetch blog", err);
-        navigate("/blog");
-      }
-    };
-
-    fetchBlog();
+    if (!id) return;
+    fetch(`${API}/${id}`)
+      .then((r) => {
+        if (!r.ok) throw new Error("not found");
+        return r.json();
+      })
+      .then(setBlog)
+      .catch(() => navigate("/blog"))
+      .finally(() => setLoading(false));
   }, [id, navigate]);
 
-  const handleShare = async () => {
-    const url = window.location.href;
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
+  const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(window.location.href);
       setShareText("Copied!");
       setTimeout(() => setShareText("Share"), 1500);
     } catch {
@@ -83,172 +52,178 @@ const BlogDetail = () => {
   };
 
   const copyCode = async (code: string) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      alert("Code copied!");
-    } catch {}
+    try { await navigator.clipboard.writeText(code); } catch {}
   };
 
-  if (loading || !blog)
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-        <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-          <div className="flex items-center gap-2 text-slate-400 mb-10">
-            <ArrowLeft className="w-5 h-5" />
-            Back
-          </div>
-          
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 md:p-8 animate-pulse">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex-1">
-                <div className="h-8 bg-slate-700/50 rounded mb-4 w-3/4"></div>
-                <div className="h-10 bg-slate-700/50 rounded mb-6 w-full"></div>
-              </div>
-              <div className="h-10 w-20 bg-slate-700/50 rounded"></div>
-            </div>
-            
-            <div className="flex gap-4 mb-8">
-              <div className="h-4 w-20 bg-slate-700/50 rounded"></div>
-              <div className="h-4 w-24 bg-slate-700/50 rounded"></div>
-              <div className="h-4 w-16 bg-slate-700/50 rounded"></div>
-            </div>
-            
-            <div className="flex gap-2 mb-6">
-              <div className="h-6 w-16 bg-slate-700/50 rounded-full"></div>
-              <div className="h-6 w-20 bg-slate-700/50 rounded-full"></div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="h-4 bg-slate-700/50 rounded w-full"></div>
-              <div className="h-4 bg-slate-700/50 rounded w-5/6"></div>
-              <div className="h-4 bg-slate-700/50 rounded w-4/5"></div>
-              <div className="h-4 bg-slate-700/50 rounded w-full"></div>
-              <div className="h-4 bg-slate-700/50 rounded w-3/4"></div>
-            </div>
+      <div className="min-h-screen bg-[#0a0a0a] text-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 md:py-16">
+          <div className="mb-12 h-4 w-24 bg-white/[0.04] rounded animate-pulse" />
+          <div className="space-y-4 animate-pulse">
+            <div className="h-8 bg-white/[0.04] rounded w-3/4" />
+            <div className="h-5 bg-white/[0.04] rounded w-full" />
+            <div className="h-5 bg-white/[0.04] rounded w-5/6" />
+            <div className="h-5 bg-white/[0.04] rounded w-4/5" />
           </div>
         </div>
       </div>
     );
+  }
+
+  if (!blog) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 md:py-16">
 
         {/* Back */}
         <button
           onClick={() => navigate("/blog")}
-          className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 mb-10"
+          className="flex items-center gap-1.5 text-sm text-[#555] hover:text-white transition-colors mb-12"
         >
-          <ArrowLeft className="w-5 h-5" /> Back
+          <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+          All posts
         </button>
 
-        {/* Main Card */}
-        <article className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 md:p-8">
-
-          {/* Header */}
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              {blog.isPinned && (
-                <div className="flex items-center gap-2 text-cyan-400 mb-4">
-                  <Pin className="w-4 h-4" /> <span>Pinned Post</span>
-                </div>
-              )}
-
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                {blog.title}
-              </h1>
+        <article>
+          {/* Pinned badge */}
+          {blog.pinned && (
+            <div className="flex items-center gap-2 mb-5">
+              <Pin className="w-3.5 h-3.5 text-[#7B5CF6]" />
+              <span className="text-xs font-medium text-[#7B5CF6] tracking-wide uppercase">Pinned post</span>
             </div>
-
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg"
-            >
-              <Share2 className="w-4 h-4" /> {shareText}
-            </button>
-          </div>
-
-          {/* Meta */}
-          <div className="flex flex-wrap gap-4 text-slate-400 text-sm mb-8">
-            <span className="flex items-center gap-1">
-              <User className="w-4 h-4" /> {blog.author}
-            </span>
-
-            <span className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              {new Date(blog.createdAt).toLocaleDateString()}
-            </span>
-
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4" /> {blog.readTime} min
-            </span>
-
-            <span className="flex items-center gap-1">
-              <Eye className="w-4 h-4" /> {blog.views} views
-            </span>
-          </div>
+          )}
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-5">
             {blog.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-xs bg-slate-700/50 px-3 py-1 rounded-full text-slate-300"
-              >
+              <span key={tag} className="text-xs px-2.5 py-1 bg-[#141414] border border-white/[0.06] rounded-full text-[#555]">
                 {tag}
               </span>
             ))}
           </div>
 
-          {/* MARKDOWN RENDERING */}
+          {/* Title */}
+          <h1 className="text-3xl md:text-4xl font-bold leading-snug tracking-tight mb-5">
+            {blog.title}
+          </h1>
+
+          {/* Meta */}
+          <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/[0.06]">
+            <div className="flex items-center gap-4 text-xs text-[#444]">
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" />
+                {fmt(blog.created_at)}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                {blog.read_time} min read
+              </span>
+              <span className="text-[#333]">{blog.author}</span>
+            </div>
+
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 text-xs text-[#555] hover:text-white transition-colors px-3 py-1.5 bg-[#141414] border border-white/[0.07] rounded-lg"
+            >
+              <Share2 className="w-3 h-3" />
+              {shareText}
+            </button>
+          </div>
+
+          {/* Excerpt lead */}
+          <p className="text-base text-[#888] leading-relaxed mb-8 border-l-2 border-[#7B5CF6]/40 pl-4">
+            {blog.excerpt}
+          </p>
+
+          {/* Markdown content */}
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw, rehypeHighlight]}
-            className="prose prose-invert max-w-none"
             components={{
-              code({ inline, children, className, ...props }) {
-                const codeText = String(children).replace(/\n$/, "");
-                const language = className?.replace("language-", "");
-
-                return !inline ? (
-                  <div className="relative group">
-                    <button
-                      onClick={() => copyCode(codeText)}
-                      className="absolute top-2 right-2 bg-slate-700 text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-
-                    <pre className="rounded-lg border border-slate-700 overflow-auto">
-                      <code className={className} {...props}>
-                        {codeText}
-                      </code>
-                    </pre>
-                  </div>
-                ) : (
-                  <code className="bg-slate-700/40 px-1 py-0.5 rounded">
+              h2: ({ children }) => (
+                <h2 className="text-xl md:text-2xl font-bold text-white mt-10 mb-4 leading-snug">{children}</h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="text-lg font-semibold text-white mt-8 mb-3">{children}</h3>
+              ),
+              p: ({ children }) => (
+                <p className="text-[#888] leading-relaxed mb-5">{children}</p>
+              ),
+              ul: ({ children }) => <ul className="space-y-2 mb-5 pl-1">{children}</ul>,
+              ol: ({ children }) => (
+                <ol className="space-y-2 mb-5 pl-4 list-decimal">{children}</ol>
+              ),
+              li: ({ children }) => (
+                <li className="flex gap-2 text-[#888] leading-relaxed">
+                  <span className="text-[#7B5CF6] mt-1.5 text-xs shrink-0">▸</span>
+                  <span>{children}</span>
+                </li>
+              ),
+              strong: ({ children }) => (
+                <strong className="text-white font-semibold">{children}</strong>
+              ),
+              blockquote: ({ children }) => (
+                <blockquote className="border-l-2 border-[#7B5CF6]/40 pl-4 my-6 text-[#666] italic">
+                  {children}
+                </blockquote>
+              ),
+              code: ({ children, className }) => {
+                const isBlock = className?.includes("language-");
+                const text = String(children).replace(/\n$/, "");
+                if (isBlock) {
+                  return (
+                    <div className="relative group my-5">
+                      <button
+                        onClick={() => copyCode(text)}
+                        className="absolute top-3 right-3 p-1.5 bg-[#1a1a1a] border border-white/[0.07] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Copy"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-[#555]" />
+                      </button>
+                      <pre className="bg-[#0f0f0f] border border-white/[0.07] rounded-xl px-5 py-4 overflow-x-auto text-sm text-[#ccc] font-mono">
+                        <code>{text}</code>
+                      </pre>
+                    </div>
+                  );
+                }
+                return (
+                  <code className="text-[#7B5CF6] bg-[#7B5CF6]/10 px-1.5 py-0.5 rounded text-sm font-mono">
                     {children}
                   </code>
                 );
               },
-
-              img({ src, alt }) {
-                return (
-                  <img
-                    src={src || ""}
-                    alt={alt || ""}
-                    className="rounded-lg border border-slate-700 cursor-zoom-in hover:opacity-90 transition"
-                    onClick={() => window.open(src, "_blank")}
-                  />
-                );
-              },
+              a: ({ href, children }) => (
+                <a href={href} target="_blank" rel="noopener noreferrer"
+                  className="text-[#7B5CF6] hover:text-[#9B7FF6] underline underline-offset-2 transition-colors">
+                  {children}
+                </a>
+              ),
+              hr: () => <hr className="border-white/[0.06] my-8" />,
             }}
           >
             {blog.content}
           </ReactMarkdown>
         </article>
+
+        {/* Bottom nav */}
+        <div className="mt-14 pt-8 border-t border-white/[0.06] flex items-center justify-between">
+          <button
+            onClick={() => navigate("/blog")}
+            className="flex items-center gap-1.5 text-sm text-[#555] hover:text-white transition-colors"
+          >
+            <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+            All posts
+          </button>
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1.5 text-sm text-[#555] hover:text-white transition-colors"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            {shareText}
+          </button>
+        </div>
       </div>
     </div>
   );
-};
-
-export default BlogDetail;
+}

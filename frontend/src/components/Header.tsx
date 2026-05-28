@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -50,9 +50,22 @@ export default function Header() {
             {link.label}
           </button>
         ))}
+        <Link
+          to="/blog"
+          className="text-sm text-[#888] hover:text-white transition-colors"
+        >
+          Blog
+        </Link>
       </div>
 
       <div className="hidden md:flex items-center gap-3">
+        <Link
+          to="/login"
+          className="flex items-center gap-1.5 text-sm text-[#555] hover:text-white border border-white/[0.07] hover:border-white/[0.15] px-4 py-2.5 rounded-full transition-all duration-200"
+        >
+          <Lock className="w-3.5 h-3.5" />
+          Login
+        </Link>
         <button
           onClick={() => smoothScroll('contact')}
           className="flex items-center gap-2 bg-[#7B5CF6] hover:bg-[#6B4EF0] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-all duration-200"
@@ -89,7 +102,22 @@ export default function Header() {
                 {link.label}
               </button>
             ))}
-            <div className="border-t border-white/[0.07] mt-1 pt-2">
+            <Link
+              to="/blog"
+              onClick={() => setMenuOpen(false)}
+              className="text-left text-sm text-[#888] hover:text-white hover:bg-white/[0.05] transition-colors px-4 py-2.5 rounded-xl"
+            >
+              Blog
+            </Link>
+            <div className="border-t border-white/[0.07] mt-1 pt-2 space-y-2">
+              <Link
+                to="/login"
+                onClick={() => setMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-1.5 text-sm text-[#555] border border-white/[0.07] px-4 py-2.5 rounded-xl transition-all hover:text-white hover:border-white/[0.15]"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                Login
+              </Link>
               <button
                 onClick={() => smoothScroll('contact')}
                 className="w-full flex items-center justify-center gap-2 bg-[#7B5CF6] hover:bg-[#6B4EF0] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-all"

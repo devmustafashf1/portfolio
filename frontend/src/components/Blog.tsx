@@ -1,209 +1,216 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowLeft,
-  Calendar,
-  Clock,
-  Pin,
-  User,
-  Eye,
-  Send,
-  Plus,
-  X
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { motion } from "framer-motion";
+import { ArrowRight, Calendar, Clock, Pin, Share2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const API = `${import.meta.env.VITE_API_URL}/read`;
 
 interface BlogPost {
   id: string;
   title: string;
-  content: string;
   excerpt: string;
   tags: string[];
-  createdAt: string;
-  readTime: number;
+  created_at: string;
+  read_time: number;
   author: string;
-  isPinned: boolean;
-  views: number;
+  pinned: boolean;
 }
 
-const Blog = () => {
+export default function Blog() {
   const navigate = useNavigate();
-
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [shareStates, setShareStates] = useState<{ [key: string]: string }>({});
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [newMarkdown, setNewMarkdown] = useState("");
 
-  // Fetch blogs
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const res = await fetch('https://portfolio-sm6r.onrender.com/read');
-        const data = await res.json();
-
-        const mappedBlogs: BlogPost[] = data.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          excerpt: item.excerpt,
-          content: item.content, // MARKDOWN FIELD
-          tags: item.tags || [],
-          createdAt: item.created_at,
-          readTime: item.read_time,
-          author: item.author,
-          isPinned: item.pinned,
-          views: parseInt(localStorage.getItem(`blog_views_${item.id}`) || '0'),
-        }));
-
-        mappedBlogs.sort((a, b) => {
-          if (a.isPinned && !b.isPinned) return -1;
-          if (!a.isPinned && b.isPinned) return 1;
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    fetch(API)
+      .then((r) => r.json())
+      .then((data) => {
+        const sorted = [...data].sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1;
+          if (!a.pinned && b.pinned) return 1;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
-
-        setBlogs(mappedBlogs);
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to fetch blogs', err);
-        setLoading(false);
-      }
-    };
-
-    fetchBlogs();
+        setBlogs(sorted);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleShare = async (blogId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    const url = `${window.location.origin}${window.location.pathname}#/blog/${blogId}`;
+  const pinned = blogs.find((b) => b.pinned);
+  const rest = blogs.filter((b) => !b.pinned);
 
+  const handleShare = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/blog/${id}`;
     try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(url);
-      } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = url;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-      }
-
-      setShareStates(prev => ({ ...prev, [blogId]: 'Link copied!' }));
-      setTimeout(() => {
-        setShareStates(prev => ({ ...prev, [blogId]: 'Share' }));
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy to clipboard', err);
-      setShareStates(prev => ({ ...prev, [blogId]: 'Copy failed' }));
-      setTimeout(() => {
-        setShareStates(prev => ({ ...prev, [blogId]: 'Share' }));
-      }, 2000);
+      await navigator.clipboard.writeText(url);
+      setShareStates((p) => ({ ...p, [id]: "Copied!" }));
+      setTimeout(() => setShareStates((p) => ({ ...p, [id]: "" })), 2000);
+    } catch {
+      setShareStates((p) => ({ ...p, [id]: "Failed" }));
+      setTimeout(() => setShareStates((p) => ({ ...p, [id]: "" })), 2000);
     }
   };
 
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 md:py-16">
 
-        {/* Top Bar */}
-          <div className="flex items-center mb-12 relative">
-            {/* Back Button */}
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Back
-            </button>
-          
-            {/* Blog Title */}
-            <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl font-bold text-white">
-              Blog
-            </h1>
-          </div>
+        {/* Back */}
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center gap-1.5 text-sm text-[#555] hover:text-white transition-colors mb-12"
+        >
+          <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+          Back to portfolio
+        </button>
 
+        {/* Header */}
+        <div className="mb-12">
+          <p className="text-xs font-semibold tracking-widest text-[#555] uppercase mb-3">Writing</p>
+          <h1 className="text-3xl md:text-4xl font-bold leading-snug">
+            Thoughts on building & shipping
+          </h1>
+        </div>
 
-        {/* Blog List */}
-        {loading ? (
-          <div className="text-center py-16 text-slate-400">Loading blogs...</div>
-        ) : blogs.length === 0 ? (
-          <div className="text-center py-16 text-slate-400">No blog posts yet.</div>
-        ) : (
-          <div className="space-y-8">
-            {blogs.map((post, index) => (
-              <motion.article
-                key={post.id}
-                onClick={() => navigate(`/blog/${post.id}`)}
-                className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 md:p-8 hover:border-slate-700 transition-all cursor-pointer relative"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                {post.isPinned && (
-                  <div className="absolute top-4 right-4 flex items-center gap-1 text-cyan-400">
-                    <Pin className="w-4 h-4" />
-                    <span className="text-xs font-medium">Pinned</span>
-                  </div>
-                )}
-
-                <h2 className="text-xl md:text-2xl font-bold text-white mb-2 hover:text-cyan-400 transition-colors pr-16">
-                  {post.title}
-                </h2>
-
-                <p className="text-slate-300 mb-4">{post.excerpt}</p>
-
-                <button
-                  onClick={(e) => handleShare(post.id, e)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg"
-                >
-                  <Send className="w-4 h-4 text-cyan-400" />
-                  <span>{shareStates[post.id] || 'Share'}</span>
-                </button>
-              </motion.article>
+        {/* Loading */}
+        {loading && (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-[#0f0f0f] border border-white/[0.06] rounded-2xl p-6 animate-pulse">
+                <div className="h-5 bg-white/[0.04] rounded w-3/4 mb-3" />
+                <div className="h-4 bg-white/[0.04] rounded w-full mb-2" />
+                <div className="h-4 bg-white/[0.04] rounded w-2/3" />
+              </div>
             ))}
           </div>
         )}
 
-        {/* MARKDOWN EDITOR MODAL */}
-        <AnimatePresence>
-          {editorOpen && (
-            <motion.div
-              className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+        {/* Empty */}
+        {!loading && blogs.length === 0 && (
+          <div className="text-center py-16 text-[#444]">No posts yet.</div>
+        )}
+
+        {/* Pinned featured post */}
+        {!loading && pinned && (
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+            className="mb-10"
+          >
+            <div
+              onClick={() => navigate(`/blog/${pinned.id}`)}
+              className="bg-[#0f0f0f] border border-white/[0.06] hover:border-[#7B5CF6]/30 rounded-2xl p-6 md:p-8 cursor-pointer group transition-all duration-200"
             >
-              <motion.div
-                className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-2xl w-full shadow-xl"
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.8 }}
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold">New Blog (Markdown)</h2>
-                  <button onClick={() => setEditorOpen(false)}>
-                    <X className="w-6 h-6 text-slate-400 hover:text-white" />
-                  </button>
+              <div className="flex items-center gap-2 mb-4">
+                <Pin className="w-3.5 h-3.5 text-[#7B5CF6]" />
+                <span className="text-xs font-medium text-[#7B5CF6] tracking-wide uppercase">Pinned</span>
+              </div>
+
+              <h2 className="text-xl md:text-2xl font-bold leading-snug mb-3 group-hover:text-[#7B5CF6] transition-colors">
+                {pinned.title}
+              </h2>
+
+              <p className="text-sm text-[#666] leading-relaxed mb-5">{pinned.excerpt}</p>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 text-xs text-[#444]">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5" />
+                    {fmt(pinned.created_at)}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    {pinned.read_time} min read
+                  </span>
                 </div>
 
-                <textarea
-                  value={newMarkdown}
-                  onChange={(e) => setNewMarkdown(e.target.value)}
-                  className="w-full h-72 p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none"
-                  placeholder="Write markdown here..."
-                />
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={(e) => handleShare(pinned.id, e)}
+                    className="flex items-center gap-1.5 text-xs text-[#555] hover:text-white transition-colors px-3 py-1.5 bg-[#141414] border border-white/[0.07] rounded-lg"
+                  >
+                    <Share2 className="w-3 h-3" />
+                    {shareStates[pinned.id] || "Share"}
+                  </button>
+                  <span className="flex items-center gap-1 text-xs text-[#7B5CF6] font-medium group-hover:gap-2 transition-all">
+                    Read post <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </div>
 
-                <p className="text-sm text-slate-500 mt-2">
-                  ⚠ Send this markdown to backend developer to store in the <strong>content</strong> field.
-                </p>
+              <div className="flex flex-wrap gap-2 mt-5 pt-5 border-t border-white/[0.04]">
+                {pinned.tags.map((tag) => (
+                  <span key={tag} className="text-xs px-2.5 py-1 bg-[#141414] border border-white/[0.06] rounded-full text-[#555]">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Divider */}
+        {!loading && rest.length > 0 && (
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex-1 h-px bg-white/[0.04]" />
+            <span className="text-xs text-[#333] uppercase tracking-widest">All posts</span>
+            <div className="flex-1 h-px bg-white/[0.04]" />
+          </div>
+        )}
+
+        {/* Post list */}
+        {!loading && (
+          <div className="space-y-3">
+            {rest.map((post, i) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: i * 0.07, ease: "easeOut" }}
+                onClick={() => navigate(`/blog/${post.id}`)}
+                className="bg-[#0f0f0f] border border-white/[0.06] hover:border-[#7B5CF6]/25 rounded-2xl px-5 py-5 cursor-pointer group transition-all duration-200 flex items-start justify-between gap-4"
+              >
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-semibold leading-snug mb-1.5 group-hover:text-[#7B5CF6] transition-colors">
+                    {post.title}
+                  </h3>
+                  <p className="text-sm text-[#555] leading-relaxed line-clamp-2 mb-3">{post.excerpt}</p>
+                  <div className="flex items-center gap-4 text-xs text-[#333]">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {fmt(post.created_at)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {post.read_time} min
+                    </span>
+                    {post.tags.slice(0, 2).map((tag) => (
+                      <span key={tag} className="text-[#333]">#{tag}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-3 shrink-0">
+                  <ArrowRight className="w-4 h-4 text-[#333] group-hover:text-[#7B5CF6] group-hover:translate-x-0.5 transition-all" />
+                  <button
+                    onClick={(e) => handleShare(post.id, e)}
+                    className="flex items-center gap-1 text-xs text-[#444] hover:text-white transition-colors"
+                  >
+                    <Share2 className="w-3 h-3" />
+                    {shareStates[post.id] || "Share"}
+                  </button>
+                </div>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default Blog;
+}

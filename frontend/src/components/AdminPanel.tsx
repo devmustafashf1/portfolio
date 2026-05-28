@@ -74,7 +74,7 @@ const AdminPanel = () => {
         project_url: formData.projectUrl || null,
       }
 
-      const response = await fetch('https://portfolio-sm6r.onrender.com/works', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/works`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const AdminPanel = () => {
     e.preventDefault();
   
     try {
-      const response = await fetch('https://portfolio-sm6r.onrender.com/read/blog', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/read/blog`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -189,7 +189,7 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await fetch("https://portfolio-sm6r.onrender.com/read");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/read`);
         const data = await res.json();
 
         const mappedBlogs: BlogPost[] = data.map((item: any) => ({
@@ -228,7 +228,7 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchWorks = async () => {
       try {
-        const res = await fetch('https://portfolio-sm6r.onrender.com/works');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/works`);
         if (!res.ok) {
           console.error('Failed to fetch works', await res.text());
           return;

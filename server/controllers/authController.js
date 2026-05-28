@@ -1,94 +1,62 @@
-// controllers/authController.js
-import { supabase } from "../config/supabaseClient.js";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret"; // store in .env
+const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
 
-// ------------------- SIGNUP -------------------
-export const signup = async (req, res) => {
-  const { username, email, password } = req.body;
-
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: "All fields required" });
-  }
-
-  try {
-    // Check if username or email already exists
-    const { data: existingUser, error: existingError } = await supabase
-      .from("admin")
-      .select("*")
-      .or(`username.eq.${username},email.eq.${email}`);
-
-    if (existingError) {
-      return res.status(500).json({ message: existingError.message });
-    }
-
-    if (existingUser && existingUser.length > 0) {
-      return res.status(409).json({ message: "User already exists" });
-    }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insert new admin
-    const { data, error } = await supabase
-      .from("admin")
-      .insert([{ username, email, password: hashedPassword }])
-      .select();
-
-    if (error) {
-      return res.status(500).json({ message: error.message });
-    }
-
-    res.status(201).json({ message: "Signup successful", user: data[0] });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ------------------- LOGIN -------------------
-export const login = async (req, res) => {
+export const login = (req, res) => {
   const { username, password } = req.body;
 
-  if (!username || !password) {
+  if (!username || !password)
     return res.status(400).json({ message: "All fields required" });
+
+  if (
+    username !== process.env.ADMIN_USERNAME ||
+    password !== process.env.ADMIN_PASSWORD
+  ) {
+    return res.status(401).json({ message: "Invalid credentials" });
   }
 
+  const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: "7d" });
+  res.json({ token, user: { username } });
+};
+
+export const forgotPassword = async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from("admin")
-      .select("*")
-      .eq("username", username)
-      .single();
-
-    if (error || !data) {
-      return res.status(401).json({ message: "Invalid username or password" });
-    }
-
-    // Compare password
-    const isMatch = await bcrypt.compare(password, data.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid username or password" });
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: data.id, username: data.username },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res.json({
-      message: "Login successful",
-      token,
-      user: { id: data.id, username: data.username, email: data.email },
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
     });
 
+    await transporter.sendMail({
+      from: `"Portfolio Admin" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      subject: "Your admin credentials",
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;color:#111">
+          <h2 style="margin-bottom:4px">Admin credentials</h2>
+          <hr style="border:none;border-top:1px solid #eee;margin:16px 0"/>
+          <table style="width:100%;border-collapse:collapse">
+            <tr>
+              <td style="padding:8px 0;color:#888;width:120px">Username</td>
+              <td style="padding:8px 0;font-weight:600">${process.env.ADMIN_USERNAME}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:#888">Password</td>
+              <td style="padding:8px 0;font-weight:600">${process.env.ADMIN_PASSWORD}</td>
+            </tr>
+          </table>
+          <hr style="border:none;border-top:1px solid #eee;margin:16px 0"/>
+          <p style="color:#888;font-size:13px">This email was sent from your portfolio server.</p>
+        </div>
+      `,
+    });
+
+    res.json({ success: true });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Forgot password email error:", err);
+    res.status(500).json({ message: "Failed to send email." });
   }
 };

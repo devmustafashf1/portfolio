@@ -29,7 +29,7 @@ export default function Contact() {
 
     setSending(true);
     try {
-      const res = await fetch("https://portfolio.mustafashf.dev/contact", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

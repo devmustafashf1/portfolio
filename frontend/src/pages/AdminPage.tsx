@@ -1,5 +1,5 @@
-import AdminPanel from '../components/AdminPanel';
+import WriteBlog from '../components/WriteBlog';
 
 export default function AdminPage() {
-  return <AdminPanel />;
+  return <WriteBlog />;
 }
