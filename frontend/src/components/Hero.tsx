@@ -22,7 +22,7 @@ export default function Hero() {
 
   return (
     <section className="mb-28 md:mb-36">
-      <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+      <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center max-w-full">
 
         {/* Left */}
         <motion.div
@@ -91,20 +91,19 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        {/* Right — Photo card */}
+        {/* Right — Photo card (desktop only) */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
-          className="flex justify-center md:justify-end"
+          className="hidden md:flex justify-end"
         >
-          <div className="relative w-72 h-80 sm:w-80 sm:h-96 md:w-[380px] md:h-[460px] rounded-2xl overflow-hidden bg-[#111] border border-white/[0.07]">
+          <div className="relative w-[380px] h-[460px] rounded-2xl overflow-hidden bg-[#111] border border-white/[0.07]">
             <img
               src={heroImg}
               alt="Mustafa"
               className="w-full h-full object-cover object-top"
             />
-            {/* Subtle gradient overlay at bottom */}
             <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[#090909]/60 to-transparent" />
           </div>
         </motion.div>

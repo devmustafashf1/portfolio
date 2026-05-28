@@ -32,8 +32,8 @@ export default function CaseStudyPage() {
     <div className="min-h-screen bg-[#090909] text-white">
 
       {/* ── Top nav ── */}
-      <div className="max-w-7xl mx-auto px-5 md:px-10 py-5">
-        <nav className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 md:px-10 py-4 md:py-5">
+        <nav className="flex items-center justify-between gap-3">
           <Link to="/" className="text-base font-semibold text-white hover:text-white/80 transition-colors">
             Mustafa.
           </Link>
@@ -46,27 +46,27 @@ export default function CaseStudyPage() {
               { label: "Contact", id: "contact" },
             ].map((item) => (
               item.to ? (
-                <Link
-                  key={item.label}
-                  to={item.to}
-                  className="text-sm text-[#888] hover:text-white transition-colors px-4 py-1.5 rounded-full"
-                >
+                <Link key={item.label} to={item.to} className="text-sm text-[#888] hover:text-white transition-colors px-4 py-1.5 rounded-full">
                   {item.label}
                 </Link>
               ) : (
-                <Link
-                  key={item.label}
-                  to={`/${item.id ? `#${item.id}` : ""}`}
-                  className="text-sm text-[#888] hover:text-white transition-colors px-4 py-1.5 rounded-full"
-                >
+                <Link key={item.label} to={`/${item.id ? `#${item.id}` : ""}`} className="text-sm text-[#888] hover:text-white transition-colors px-4 py-1.5 rounded-full">
                   {item.label}
                 </Link>
               )
             ))}
           </div>
+          {/* Mobile: back button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="md:hidden flex items-center gap-1.5 text-sm text-[#888] hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
           <Link
             to="/"
-            className="bg-[#7B5CF6] hover:bg-[#6B4EF0] text-white text-sm font-medium px-5 py-2 rounded-full transition-all"
+            className="hidden md:inline-flex bg-[#7B5CF6] hover:bg-[#6B4EF0] text-white text-sm font-medium px-5 py-2 rounded-full transition-all"
           >
             Book a Call
           </Link>
@@ -74,7 +74,7 @@ export default function CaseStudyPage() {
       </div>
 
       {/* ── Full-bleed hero image ── */}
-      <div className="relative w-full overflow-hidden bg-[#090909]" style={{ height: "340px" }}>
+      <div className="relative w-full overflow-hidden bg-[#090909]" style={{ height: "clamp(180px, 35vw, 340px)" }}>
         {/* Image — clear, bright, shown as a floating showcase panel */}
         <img
           src={project.image_url}
@@ -93,7 +93,7 @@ export default function CaseStudyPage() {
       </div>
 
       {/* ── Main content ── */}
-      <div className="max-w-4xl mx-auto px-5 md:px-8 py-12">
+      <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12">
 
         {/* Breadcrumb */}
         <motion.div
@@ -138,7 +138,7 @@ export default function CaseStudyPage() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1 }}
-          className="text-4xl md:text-6xl font-bold leading-tight mb-4"
+          className="text-3xl md:text-6xl font-bold leading-tight mb-4"
         >
           {project.title}
         </motion.h1>
@@ -183,13 +183,13 @@ export default function CaseStudyPage() {
 
           {/* Outcomes */}
           <Section title="Results">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-2">
               {project.outcomes.map((o, i) => (
                 <div
                   key={i}
-                  className="bg-[#0f0f0f] border border-white/[0.06] rounded-xl p-5 text-center"
+                  className="bg-[#0f0f0f] border border-white/[0.06] rounded-xl p-4 md:p-5 text-center"
                 >
-                  <p className="text-2xl md:text-3xl font-bold text-[#7B5CF6] mb-1">{o.metric}</p>
+                  <p className="text-xl md:text-3xl font-bold text-[#7B5CF6] mb-1">{o.metric}</p>
                   <p className="text-xs text-[#666] leading-snug">{o.label}</p>
                 </div>
               ))}

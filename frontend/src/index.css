@@ -21,6 +21,7 @@ body {
 
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: #090909;
@@ -28,4 +29,13 @@ body {
 ::-webkit-scrollbar-thumb {
   background: #252525;
   border-radius: 2px;
+}
+
+/* Hide scrollbar for carousels */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

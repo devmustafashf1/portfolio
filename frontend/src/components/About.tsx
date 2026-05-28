@@ -31,15 +31,14 @@ export default function About() {
     >
       <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
 
-        {/* Left — photo with bottom stat badges */}
+        {/* Left — photo with stat badges (desktop only) */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative"
+          className="relative hidden md:block"
         >
-          {/* Photo card */}
           <div
             className="w-full rounded-2xl overflow-hidden bg-[#0f0f0f] border border-white/[0.06]"
             style={{ aspectRatio: "3/4", maxHeight: "560px" }}
@@ -50,9 +49,7 @@ export default function About() {
               className="w-full h-full object-cover object-top"
             />
           </div>
-
-          {/* Stat badges — overlapping bottom edge */}
-          <div className="flex gap-2 mt-3 md:mt-0 md:absolute md:bottom-4 md:left-1/2 md:-translate-x-1/2 md:w-[calc(100%-2rem)]">
+          <div className="flex gap-2 absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)]">
             {stats.map((s, i) => (
               <div
                 key={i}
@@ -67,6 +64,18 @@ export default function About() {
 
         {/* Right — text content */}
         <div>
+          {/* Stat badges — mobile only */}
+          <div className="flex gap-2 mb-7 md:hidden">
+            {stats.map((s, i) => (
+              <div
+                key={i}
+                className="flex-1 bg-[#0f0f0f] border border-white/[0.08] rounded-xl px-3 py-2.5 text-center"
+              >
+                <p className="text-white text-xs font-semibold leading-tight mb-0.5">{s.top}</p>
+                <p className="text-[#555] text-[10px] leading-tight">{s.bottom}</p>
+              </div>
+            ))}
+          </div>
           <p className="text-xs font-semibold tracking-widest text-[#7B5CF6] uppercase mb-4">
             About Me
           </p>

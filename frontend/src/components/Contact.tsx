@@ -13,16 +13,35 @@ export default function Contact() {
   });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
   const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    if (!form.email.trim()) {
+      setError("Email is required.");
+      return;
+    }
+
     setSending(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setSending(false);
-    setSent(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send.");
+      setSent(true);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -137,6 +156,12 @@ export default function Contact() {
                   className="w-full bg-[#141414] border border-white/[0.07] rounded-xl px-4 py-3 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#7B5CF6]/50 transition-colors resize-none"
                 />
               </div>
+
+              {error && (
+                <p className="text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-3">
+                  {error}
+                </p>
+              )}
 
               <button
                 type="submit"

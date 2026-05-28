@@ -29,7 +29,7 @@ function ScrollHandler() {
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#090909] text-white">
-      <div className="max-w-6xl mx-auto px-5 md:px-8 py-5 md:py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-4 md:py-8">
         <Header />
         {children}
         <Footer />

@@ -66,7 +66,7 @@ export default function Services() {
         Every path leads to the same thing — your product moving again.
       </p>
 
-      <div className="grid md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
         {services.map((s, i) => (
           <motion.div
             key={i}

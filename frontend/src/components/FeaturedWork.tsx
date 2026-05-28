@@ -71,10 +71,10 @@ export default function FeaturedWork() {
               onClick={() => goTo(projects[0])}
               className="group mb-5 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl overflow-hidden cursor-pointer hover:border-white/[0.12] transition-all duration-300"
             >
-              <div className="grid md:grid-cols-2">
-                <div className="p-7 md:p-9 flex flex-col justify-between">
+              <div className="flex flex-col md:grid md:grid-cols-2">
+                <div className="p-6 md:p-9 flex flex-col justify-between">
                   <div>
-                    <div className="flex flex-wrap gap-2 mb-5">
+                    <div className="flex flex-wrap gap-2 mb-4 md:mb-5">
                       {projects[0].tags?.map((tag) => (
                         <span key={tag} className="text-xs text-[#666] bg-white/[0.04] border border-white/[0.06] px-2.5 py-1 rounded-full">
                           {tag}
@@ -86,13 +86,13 @@ export default function FeaturedWork() {
                     </h3>
                     <p className="text-sm text-[#888] leading-relaxed">{projects[0].description}</p>
                   </div>
-                  <div className="flex items-center gap-2 mt-6 text-sm text-[#7B5CF6] font-medium">
+                  <div className="flex items-center gap-2 mt-5 text-sm text-[#7B5CF6] font-medium">
                     Read case study
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
                 {projects[0].image_url && (
-                  <div className="relative h-52 md:h-auto overflow-hidden">
+                  <div className="relative hidden md:block h-52 md:h-auto overflow-hidden">
                     <img
                       src={projects[0].image_url}
                       alt={projects[0].title}
@@ -104,8 +104,8 @@ export default function FeaturedWork() {
             </motion.div>
           )}
 
-          {/* Remaining projects — smaller grid */}
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
+          {/* Remaining projects — horizontal scroll on mobile, grid on desktop */}
+          <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible md:grid md:grid-cols-3 md:gap-5 snap-x snap-mandatory md:snap-none scrollbar-hide">
             {projects.slice(1).map((project, i) => (
               <motion.div
                 key={i}
@@ -114,10 +114,10 @@ export default function FeaturedWork() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
                 onClick={() => goTo(project)}
-                className="group bg-[#0f0f0f] border border-white/[0.06] rounded-2xl overflow-hidden cursor-pointer hover:border-white/[0.12] transition-all duration-300"
+                className="group flex-shrink-0 w-[72vw] sm:w-[54vw] md:w-auto bg-[#0f0f0f] border border-white/[0.06] rounded-2xl overflow-hidden cursor-pointer hover:border-white/[0.12] transition-all duration-300 snap-start"
               >
                 {project.image_url && (
-                  <div className="relative h-40 overflow-hidden">
+                  <div className="relative h-36 md:h-40 overflow-hidden">
                     <img
                       src={project.image_url}
                       alt={project.title}

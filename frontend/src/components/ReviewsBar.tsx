@@ -46,7 +46,7 @@ export default function ReviewsBar() {
         Honest feedback from founders and teams I've moved forward.
       </p>
 
-      <div className="grid md:grid-cols-3 gap-5">
+      <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible md:grid md:grid-cols-3 md:gap-5 snap-x snap-mandatory md:snap-none scrollbar-hide">
         {reviews.map((review, i) => (
           <motion.div
             key={i}
@@ -54,7 +54,7 @@ export default function ReviewsBar() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bg-[#0f0f0f] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between gap-6"
+            className="flex-shrink-0 w-[80vw] sm:w-[60vw] md:w-auto bg-[#0f0f0f] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between gap-6 snap-start"
           >
             <p className="text-sm text-[#999] leading-relaxed">
               "{review.review}"
