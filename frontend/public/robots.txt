@@ -4,4 +4,4 @@ Allow: /
 Disallow: /admin
 Disallow: /login
 
-Sitemap: https://www.mustafashafique.dev/sitemap.xml
+Sitemap: https://mustafashf.dev/sitemap.xml
