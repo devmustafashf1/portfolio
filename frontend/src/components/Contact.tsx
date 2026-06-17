@@ -215,7 +215,7 @@ export default function Contact() {
               </a>
 
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/mustafashf/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-4 bg-[#141414] border border-white/[0.06] hover:border-[#7B5CF6]/30 rounded-xl px-5 py-4 transition-all group"

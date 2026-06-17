@@ -16,7 +16,7 @@ const stats = [
 const links = [
   { label: "Resume", icon: FileText, url: "#", external: true },
   { label: "GitHub", icon: Github, url: "https://github.com/devmustafashf1", external: true },
-  { label: "LinkedIn", icon: Linkedin, url: "https://linkedin.com", external: true },
+  { label: "LinkedIn", icon: Linkedin, url: "https://www.linkedin.com/in/mustafashf/", external: true },
 ];
 
 export default function About() {

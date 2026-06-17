@@ -21,7 +21,7 @@ export default function Footer() {
           <a href="https://github.com/devmustafashf1" target="_blank" rel="noopener noreferrer" className="text-sm text-[#444] hover:text-white transition-colors">
             GitHub
           </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-sm text-[#444] hover:text-white transition-colors">
+          <a href="https://www.linkedin.com/in/mustafashf/" target="_blank" rel="noopener noreferrer" className="text-sm text-[#444] hover:text-white transition-colors">
             LinkedIn
           </a>
         </div>
