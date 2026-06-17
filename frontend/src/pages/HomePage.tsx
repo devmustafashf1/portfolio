@@ -1,5 +1,6 @@
 import Hero from '../components/Hero';
 import ClientsRoller from '../components/ClientsRoller';
+import TestimonialVideo from '../components/TestimonialVideo';
 import Problems from '../components/Problems';
 import Services from '../components/Services';
 import FeaturedWork from '../components/FeaturedWork';
@@ -14,6 +15,7 @@ export default function HomePage() {
     <>
       <Hero />
       <ClientsRoller />
+      <TestimonialVideo />
       <Problems />
       <Services />
       <FeaturedWork />
