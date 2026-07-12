@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { FileText, Github, Linkedin, ExternalLink } from "lucide-react";
-import heroImg from "../../public/gm-aesthetic.png";
+import heroImg from "../../public/GM-professional.jpeg";
 
 const skills = [
   "React Native", "Next.js", "React", "Node.js",
@@ -46,7 +46,8 @@ export default function About() {
             <img
               src={heroImg}
               alt="Mustafa"
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover"
+              style={{ objectPosition: "center 15%", transform: "scale(1.15)" }}
             />
           </div>
           <div className="flex gap-2 absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)]">

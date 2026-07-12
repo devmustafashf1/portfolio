@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import heroImg from "../../public/gm-aesthetic.png";
+import heroImg from "../../public/GM-professional.jpeg";
 
 const container = {
   hidden: { opacity: 0 },
@@ -102,7 +102,8 @@ export default function Hero() {
             <img
               src={heroImg}
               alt="Mustafa"
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover"
+              style={{ objectPosition: "center 15%", transform: "scale(1.15)" }}
             />
             <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[#090909]/60 to-transparent" />
           </div>
