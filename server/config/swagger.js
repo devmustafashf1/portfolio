@@ -29,7 +29,11 @@ export const swaggerSpec = {
           title: { type: "string" },
           author: { type: "string" },
           excerpt: { type: "string" },
-          content: { type: "string", description: "Markdown content" },
+          content: {
+            type: "string",
+            description:
+              "Sanitized rich-text HTML (may include floating/resizable images), or legacy Markdown for older posts",
+          },
           tags: { type: "array", items: { type: "string" } },
           read_time: { type: "integer" },
           pinned: { type: "boolean" },
@@ -75,6 +79,12 @@ export const swaggerSpec = {
             type: "object",
             properties: { username: { type: "string" } },
           },
+        },
+      },
+      UploadImageResponse: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "Public URL of the uploaded image" },
         },
       },
     },
@@ -134,6 +144,40 @@ export const swaggerSpec = {
             },
           },
           400: { description: "Missing required fields" },
+          401: { description: "No token provided" },
+          403: { description: "Invalid or expired token" },
+        },
+      },
+    },
+    "/read/blog/upload-image": {
+      post: {
+        tags: ["Blogs"],
+        summary: "Upload an image for use inside blog content",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                properties: {
+                  image: { type: "string", format: "binary" },
+                },
+                required: ["image"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Image uploaded",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/UploadImageResponse" },
+              },
+            },
+          },
+          400: { description: "No file or not an image" },
           401: { description: "No token provided" },
           403: { description: "Invalid or expired token" },
         },
