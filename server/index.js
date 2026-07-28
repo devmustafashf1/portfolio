@@ -7,6 +7,7 @@ import { swaggerSpec } from './config/swagger.js'
 import contactRoutes from './route/contactRoutes.js'
 import blogRoutes from './route/blogRoutes.js'
 import authRoutes from './route/authRoutes.js'
+import workRoutes from './route/workRoutes.js'
 import { ensureStorageBucket } from './config/ensureStorageBucket.js'
 
 const app = express()
@@ -22,6 +23,7 @@ app.use(cors());
 app.use('/contact', contactRoutes)
 app.use('/read', blogRoutes)
 app.use('/auth', authRoutes)
+app.use('/works', workRoutes)
 
 // swagger docs — also expose raw spec for embedding
 app.get('/api-docs/spec', (_req, res) => res.json(swaggerSpec))

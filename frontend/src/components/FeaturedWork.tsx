@@ -11,7 +11,7 @@ export default function FeaturedWork() {
 
   useEffect(() => {
     let mounted = true;
-    fetch("https://portfolio-sm6r.onrender.com/works")
+    fetch(`${import.meta.env.VITE_API_URL}/works`)
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((data: unknown) => {
         if (!mounted) return;
