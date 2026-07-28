@@ -19,6 +19,8 @@ jobs:
 
       - name: Install & build frontend
         working-directory: ./frontend
+        env:
+          VITE_API_URL: https://portfolio.mustafashf.dev/api
         run: npm install && npm run build
 
       - name: Deploy to GitHub Pages

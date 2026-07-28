@@ -20,10 +20,14 @@ app.use(express.json({ limit: '2mb' }))
 app.use(cors());
 
 // routes
-app.use('/contact', contactRoutes)
-app.use('/read', blogRoutes)
-app.use('/auth', authRoutes)
-app.use('/works', workRoutes)
+const apiRouter = express.Router()
+apiRouter.use('/contact', contactRoutes)
+apiRouter.use('/read', blogRoutes)
+apiRouter.use('/auth', authRoutes)
+apiRouter.use('/works', workRoutes)
+
+app.use('/api', apiRouter)
+app.use('/', apiRouter)
 
 // swagger docs — also expose raw spec for embedding
 app.get('/api-docs/spec', (_req, res) => res.json(swaggerSpec))
@@ -31,6 +35,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'Portfolio API Docs',
   customCss: '.swagger-ui .topbar { display: none }',
 }))
+
+app.get('/healthz', (_req, res) => {
+  res.json({ status: 'ok' })
+})
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
