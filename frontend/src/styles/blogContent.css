@@ -1,0 +1,137 @@
+/* Shared typography + image layout rules for both the TipTap editor and the
+   published BlogDetail page. Keeping this in one file is what guarantees the
+   editor and the live post can never visually drift apart. */
+
+.blog-content {
+  color: #888;
+}
+
+.blog-content h2 {
+  @apply text-xl md:text-2xl font-bold text-white mt-10 mb-4 leading-snug;
+}
+
+.blog-content h3 {
+  @apply text-lg font-semibold text-white mt-8 mb-3;
+}
+
+.blog-content p {
+  @apply text-[#888] leading-relaxed mb-5;
+}
+
+.blog-content ul {
+  @apply space-y-2 mb-5 pl-5 list-disc marker:text-[#7B5CF6];
+}
+
+.blog-content ol {
+  @apply space-y-2 mb-5 pl-5 list-decimal marker:text-[#7B5CF6];
+}
+
+.blog-content li {
+  @apply text-[#888] leading-relaxed;
+}
+
+.blog-content strong {
+  @apply text-white font-semibold;
+}
+
+.blog-content blockquote {
+  @apply border-l-2 border-[#7B5CF6]/40 pl-4 my-6 text-[#666] italic;
+}
+
+.blog-content code {
+  @apply text-[#7B5CF6] bg-[#7B5CF6]/10 px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.blog-content pre {
+  @apply bg-[#0f0f0f] border border-white/[0.07] rounded-xl px-5 py-4 overflow-x-auto text-sm text-[#ccc] font-mono my-5;
+}
+
+.blog-content pre code {
+  @apply bg-transparent p-0 text-[#ccc];
+}
+
+.blog-content a {
+  @apply text-[#7B5CF6] hover:text-[#9B7FF6] underline underline-offset-2 transition-colors;
+}
+
+.blog-content hr {
+  @apply border-white/[0.06] my-8;
+}
+
+/* --- Images: floating, resizable, centered --- */
+
+.blog-content .blog-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* Published output: plain <img data-align> */
+.blog-content .blog-img[data-align="left"] {
+  float: left;
+  margin: 4px 24px 16px 0;
+}
+.blog-content .blog-img[data-align="right"] {
+  float: right;
+  margin: 4px 0 16px 24px;
+}
+.blog-content .blog-img[data-align="center"] {
+  display: block;
+  float: none;
+  margin: 24px auto;
+}
+.blog-content .blog-img[data-align="full"] {
+  display: block;
+  float: none;
+  width: 100% !important;
+  margin: 24px 0;
+}
+
+/* Editor NodeView wrapper mirrors the same alignment */
+.blog-content .blog-img-node {
+  max-width: 100%;
+}
+.blog-content .blog-img-node[data-align="left"] {
+  float: left;
+  margin: 4px 24px 16px 0;
+}
+.blog-content .blog-img-node[data-align="right"] {
+  float: right;
+  margin: 4px 0 16px 24px;
+}
+.blog-content .blog-img-node[data-align="center"] {
+  display: block;
+  float: none;
+  margin: 24px auto;
+  width: fit-content;
+}
+.blog-content .blog-img-node[data-align="full"] {
+  display: block;
+  float: none;
+  width: 100% !important;
+  margin: 24px 0;
+}
+
+/* Prevent dangling floats collapsing the container / bleeding into the next section */
+.blog-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.blog-content h2,
+.blog-content h3,
+.blog-content blockquote,
+.blog-content pre {
+  clear: both;
+}
+
+@media (max-width: 640px) {
+  .blog-content .blog-img[data-align="left"],
+  .blog-content .blog-img[data-align="right"],
+  .blog-content .blog-img-node[data-align="left"],
+  .blog-content .blog-img-node[data-align="right"] {
+    float: none;
+    width: 100% !important;
+    margin: 16px 0;
+  }
+}

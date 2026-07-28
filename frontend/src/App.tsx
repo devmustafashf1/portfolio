@@ -1,13 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import BlogPage from './pages/BlogPage';
 import LoginPage from './pages/LoginPage';
-import AdminPage from './pages/AdminPage';
 import CaseStudyPage from './pages/CaseStudyPage';
 import ProtectedRoute from "./components/ProtectedRoute";
+
+// Lazy-loaded: the admin editor pulls in TipTap/ProseMirror, which public
+// visitors to the rest of the site should never have to download.
+const AdminPage = lazy(() => import('./pages/AdminPage'));
 
 function ScrollHandler() {
   const location = useLocation();
@@ -52,7 +55,9 @@ function App() {
           path="/admin"
           element={
             <ProtectedRoute>
-              <AdminPage />
+              <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a]" />}>
+                <AdminPage />
+              </Suspense>
             </ProtectedRoute>
           }
         />

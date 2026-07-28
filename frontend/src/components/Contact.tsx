@@ -6,9 +6,9 @@ export default function Contact() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    github: "",
-    linkedin: "",
     subject: "",
+    businessName: "",
+    websiteLink: "",
     message: "",
   });
   const [sending, setSending] = useState(false);
@@ -104,29 +104,6 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs text-[#555] uppercase tracking-wider block mb-1.5">GitHub</label>
-                  <input
-                    name="github"
-                    value={form.github}
-                    onChange={handle}
-                    placeholder="github.com/you"
-                    className="w-full bg-[#141414] border border-white/[0.07] rounded-xl px-4 py-3 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#7B5CF6]/50 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-[#555] uppercase tracking-wider block mb-1.5">LinkedIn</label>
-                  <input
-                    name="linkedin"
-                    value={form.linkedin}
-                    onChange={handle}
-                    placeholder="linkedin.com/in/you"
-                    className="w-full bg-[#141414] border border-white/[0.07] rounded-xl px-4 py-3 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#7B5CF6]/50 transition-colors"
-                  />
-                </div>
-              </div>
-
               <div>
                 <label className="text-xs text-[#555] uppercase tracking-wider block mb-1.5">Subject</label>
                 <select
@@ -140,9 +117,35 @@ export default function Contact() {
                   <option value="fix" className="bg-[#141414]">Fix a broken product</option>
                   <option value="build" className="bg-[#141414]">Build something new</option>
                   <option value="retainer" className="bg-[#141414]">Ongoing retainer</option>
+                  <option value="business" className="bg-[#141414]">Business Inspection</option>
                   <option value="other" className="bg-[#141414]">Other</option>
                 </select>
               </div>
+
+              {form.subject === "business" && (
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-[#555] uppercase tracking-wider block mb-1.5">Business Name (optional)</label>
+                    <input
+                      name="businessName"
+                      value={form.businessName}
+                      onChange={handle}
+                      placeholder="Your business name"
+                      className="w-full bg-[#141414] border border-white/[0.07] rounded-xl px-4 py-3 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#7B5CF6]/50 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#555] uppercase tracking-wider block mb-1.5">Website Link (optional)</label>
+                    <input
+                      name="websiteLink"
+                      value={form.websiteLink}
+                      onChange={handle}
+                      placeholder="yourbusiness.com"
+                      className="w-full bg-[#141414] border border-white/[0.07] rounded-xl px-4 py-3 text-sm text-white placeholder-[#444] focus:outline-none focus:border-[#7B5CF6]/50 transition-colors"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="text-xs text-[#555] uppercase tracking-wider block mb-1.5">Message</label>

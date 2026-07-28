@@ -1,28 +1,95 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Check, Eye, Pencil, Pin } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-
-type Tab = "write" | "preview";
+import { ArrowRight, Check, Loader2, Pin, Sparkles } from "lucide-react";
+import TipTapEditor, { TipTapEditorHandle } from "./editor/TipTapEditor";
+import { getPlainTextExcludingImages } from "../lib/editorText";
+import { suggestExcerpt, suggestTags, suggestTitle } from "../lib/ai";
 
 const EMPTY = { title: "", excerpt: "", content: "", tags: "", readTime: 5, pinned: false };
 
+function isContentEmpty(html: string) {
+  const stripped = html.replace(/<[^>]*>/g, "").trim();
+  const hasImage = /<img/i.test(html);
+  return !stripped && !hasImage;
+}
+
 export default function WriteBlog() {
   const [form, setForm] = useState(EMPTY);
-  const [tab, setTab] = useState<Tab>("write");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const editorRef = useRef<TipTapEditorHandle>(null);
+  const [titleLoading, setTitleLoading] = useState(false);
+  const [excerptLoading, setExcerptLoading] = useState(false);
+  const [tagsLoading, setTagsLoading] = useState(false);
 
   const set = (key: keyof typeof EMPTY, val: string | number | boolean) =>
     setForm((f) => ({ ...f, [key]: val }));
+
+  const contentText = () => {
+    const editor = editorRef.current?.editor;
+    return editor ? getPlainTextExcludingImages(editor) : "";
+  };
+
+  const handleSuggestTitle = async () => {
+    const text = contentText() || form.excerpt;
+    if (!text.trim()) {
+      setError("Write some content first, then suggest a title.");
+      return;
+    }
+    setError("");
+    setTitleLoading(true);
+    try {
+      const { title } = await suggestTitle(text);
+      set("title", title);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to suggest a title");
+    } finally {
+      setTitleLoading(false);
+    }
+  };
+
+  const handleSuggestExcerpt = async () => {
+    const text = contentText();
+    if (!text.trim()) {
+      setError("Write some content first, then suggest an excerpt.");
+      return;
+    }
+    setError("");
+    setExcerptLoading(true);
+    try {
+      const { excerpt } = await suggestExcerpt(text);
+      set("excerpt", excerpt);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to suggest an excerpt");
+    } finally {
+      setExcerptLoading(false);
+    }
+  };
+
+  const handleSuggestTags = async () => {
+    const text = contentText() || form.excerpt;
+    if (!text.trim()) {
+      setError("Write some content first, then suggest tags.");
+      return;
+    }
+    setError("");
+    setTagsLoading(true);
+    try {
+      const { tags } = await suggestTags(text);
+      set("tags", tags);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to suggest tags");
+    } finally {
+      setTagsLoading(false);
+    }
+  };
 
   const publish = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!form.title.trim() || !form.content.trim() || !form.excerpt.trim()) {
+    if (!form.title.trim() || isContentEmpty(form.content) || !form.excerpt.trim()) {
       setError("Title, excerpt and content are required.");
       return;
     }
@@ -79,18 +146,42 @@ export default function WriteBlog() {
       <form onSubmit={publish}>
         {/* Meta fields */}
         <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-2xl p-6 mb-4 space-y-4">
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => set("title", e.target.value)}
-            placeholder="Post title..."
-            className="w-full bg-transparent text-2xl md:text-3xl font-bold text-white placeholder-[#333] focus:outline-none"
-          />
+          <div className="flex items-start gap-2">
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              placeholder="Post title..."
+              className="flex-1 bg-transparent text-2xl md:text-3xl font-bold text-white placeholder-[#333] focus:outline-none"
+            />
+            <button
+              type="button"
+              title="Suggest a title from your content"
+              onClick={handleSuggestTitle}
+              disabled={titleLoading}
+              className="shrink-0 mt-1.5 flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-white/[0.07] text-[#888] hover:text-white hover:border-[#7B5CF6]/40 disabled:opacity-40 transition-colors"
+            >
+              {titleLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">Suggest</span>
+            </button>
+          </div>
 
           <div className="h-px bg-white/[0.04]" />
 
           <div>
-            <label className="text-xs text-[#555] uppercase tracking-wider block mb-1.5">Excerpt</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs text-[#555] uppercase tracking-wider">Excerpt</label>
+              <button
+                type="button"
+                title="Suggest an excerpt from your content"
+                onClick={handleSuggestExcerpt}
+                disabled={excerptLoading}
+                className="flex items-center gap-1 text-[10px] text-[#666] hover:text-[#7B5CF6] disabled:opacity-40 transition-colors"
+              >
+                {excerptLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                Suggest
+              </button>
+            </div>
             <textarea
               value={form.excerpt}
               onChange={(e) => set("excerpt", e.target.value)}
@@ -102,7 +193,19 @@ export default function WriteBlog() {
 
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
-              <label className="text-xs text-[#555] uppercase tracking-wider block mb-1.5">Tags</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs text-[#555] uppercase tracking-wider">Tags</label>
+                <button
+                  type="button"
+                  title="Suggest tags from your content"
+                  onClick={handleSuggestTags}
+                  disabled={tagsLoading}
+                  className="flex items-center gap-1 text-[10px] text-[#666] hover:text-[#7B5CF6] disabled:opacity-40 transition-colors"
+                >
+                  {tagsLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                  Suggest
+                </button>
+              </div>
               <input
                 type="text"
                 value={form.tags}
@@ -138,77 +241,9 @@ export default function WriteBlog() {
           </label>
         </div>
 
-        {/* Write / Preview toggle */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center bg-[#0f0f0f] border border-white/[0.06] rounded-lg p-0.5">
-            {(["write", "preview"] as Tab[]).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTab(t)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all capitalize flex items-center gap-1 ${
-                  tab === t ? "bg-[#7B5CF6] text-white" : "text-[#555] hover:text-white"
-                }`}
-              >
-                {t === "write" ? <><Pencil className="w-3 h-3" />Write</> : <><Eye className="w-3 h-3" />Preview</>}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Editor / Preview */}
-        <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-2xl overflow-hidden mb-4">
-          {tab === "write" ? (
-            <textarea
-              value={form.content}
-              onChange={(e) => set("content", e.target.value)}
-              placeholder={`## Start writing...\n\nSupports **markdown** — headings, lists, code blocks, links, everything.`}
-              className="w-full bg-transparent px-6 py-6 text-sm text-[#ccc] placeholder-[#333] focus:outline-none font-mono leading-relaxed resize-none"
-              style={{ minHeight: "480px" }}
-            />
-          ) : (
-            <div className="px-6 py-6 min-h-[480px]">
-              {form.content.trim() ? (
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    h2: ({ children }) => <h2 className="text-xl font-bold text-white mt-8 mb-3">{children}</h2>,
-                    h3: ({ children }) => <h3 className="text-lg font-semibold text-white mt-6 mb-2">{children}</h3>,
-                    p: ({ children }) => <p className="text-[#888] leading-relaxed mb-4">{children}</p>,
-                    ul: ({ children }) => <ul className="space-y-1.5 mb-4 pl-1">{children}</ul>,
-                    ol: ({ children }) => <ol className="space-y-1.5 mb-4 pl-4 list-decimal">{children}</ol>,
-                    li: ({ children }) => (
-                      <li className="flex gap-2 text-[#888]">
-                        <span className="text-[#7B5CF6] mt-1.5 text-xs shrink-0">▸</span>
-                        <span>{children}</span>
-                      </li>
-                    ),
-                    strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
-                    blockquote: ({ children }) => (
-                      <blockquote className="border-l-2 border-[#7B5CF6]/40 pl-4 my-5 text-[#666] italic">{children}</blockquote>
-                    ),
-                    code: ({ children, className }) => {
-                      const isBlock = className?.includes("language-");
-                      return isBlock ? (
-                        <pre className="bg-[#141414] border border-white/[0.07] rounded-xl px-5 py-4 overflow-x-auto text-sm text-[#ccc] font-mono my-4">
-                          <code>{String(children).replace(/\n$/, "")}</code>
-                        </pre>
-                      ) : (
-                        <code className="text-[#7B5CF6] bg-[#7B5CF6]/10 px-1.5 py-0.5 rounded text-sm font-mono">
-                          {children}
-                        </code>
-                      );
-                    },
-                    hr: () => <hr className="border-white/[0.06] my-6" />,
-                  }}
-                >
-                  {form.content}
-                </ReactMarkdown>
-              ) : (
-                <p className="text-[#333] text-sm">Nothing to preview yet. Start writing on the Write tab.</p>
-              )}
-            </div>
-          )}
+        {/* Rich editor — doubles as the live preview, matches the published post 1:1 */}
+        <div className="mb-4">
+          <TipTapEditor ref={editorRef} value={form.content} onChange={(html) => set("content", html)} />
         </div>
 
         {error && (

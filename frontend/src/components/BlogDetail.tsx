@@ -3,6 +3,9 @@ import { ArrowRight, Calendar, Clock, Copy, Pin, Share2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import DOMPurify from "dompurify";
+import BlogAssistant from "./BlogAssistant";
+import "../styles/blogContent.css";
 
 const API = `${import.meta.env.VITE_API_URL}/read`;
 
@@ -137,7 +140,17 @@ export default function BlogDetail() {
             {blog.excerpt}
           </p>
 
-          {/* Markdown content */}
+          {/* Content — rich HTML (new posts, authored with the image editor) or legacy markdown */}
+          {blog.content.trim().startsWith("<") ? (
+            <div
+              className="blog-content"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(blog.content, {
+                  ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "style", "data-align", "target", "rel"],
+                }),
+              }}
+            />
+          ) : (
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -204,6 +217,7 @@ export default function BlogDetail() {
           >
             {blog.content}
           </ReactMarkdown>
+          )}
         </article>
 
         {/* Bottom nav */}
@@ -224,6 +238,8 @@ export default function BlogDetail() {
           </button>
         </div>
       </div>
+
+      <BlogAssistant blogId={blog.id} />
     </div>
   );
 }
